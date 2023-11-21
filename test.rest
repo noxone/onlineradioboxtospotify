@@ -1,0 +1,12 @@
+
+
+###
+
+POST http://localhost:7000/invoke
+Content-Type: application/json
+
+{
+    "station" : "radiohamburg"
+}
+
+###
