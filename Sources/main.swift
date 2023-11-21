@@ -1,4 +1,15 @@
-// The Swift Programming Language
-// https://docs.swift.org/swift-book
+import AWSLambdaRuntime
 
-print("Hello, world!")
+struct Input: Codable {
+    let station: String
+}
+
+struct Output: Codable {
+    let result: String
+}
+
+Lambda.run { (context, input: Input, callback: @escaping (Result<Output, Error>) -> Void) in
+    let output = Output(result: "Station: \(input.station)")
+    
+    callback(.success(output))
+}
