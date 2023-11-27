@@ -26,11 +26,15 @@ struct Output: Codable {
     let items: Int
 }
 
+struct RawPlaylistEntry {
+    let time: String
+    let href: String
+}
+
 struct Track {
     let name: String
     let artist: String
     let albumName: String?
-    let albumYear: Int?
 }
 
 /*Lambda.run { (context, input: Input, callback: @escaping (Result<Output, Error>) -> Void) in
@@ -67,7 +71,7 @@ private func runAndWait(_ code: @escaping () async -> Void) {
 private func actualLogicToRun(with input: Input) async -> Output {
     var count = -1
     do {
-        let tracks = try await loadStationPlaylist(forStation: input.station)
+        let tracks = try await loadTrackInformation(forStation: input.station)
         count = tracks.count
         print(tracks)
     } catch {
@@ -77,19 +81,35 @@ private func actualLogicToRun(with input: Input) async -> Output {
     return output
 }
 
-private func loadStationPlaylist(forStation station: String) async throws -> [Track] {
-    let document = try await loadStationPage(forStation: station)
-    let trackHrefs = try extractPlaylistData(from: document)
-    let tracks = try await trackHrefs.asyncMap {
-        let document = try await loadTrackPage(forHref: $0)
-        return try extractTrackData(from: document)
+private func loadTrackInformation(forStation station: String) async throws -> [Track] {
+    let rawPlaylistEntries = try await loadStationPlaylist(forStation: station)
+    let hrefs = Set(rawPlaylistEntries.map { $0.href })
+    let trackDictionary = try await hrefs.concurrentMap { href in
+        let document = try await loadTrackPage(forHref: href)
+        let track = try extractTrackData(from: document)
+        return (href: href, track: track)
+    }.reduce(into: [String:Track]()) { map, tuple in
+        map[tuple.href] = tuple.track
     }
+    
+    let tracks = rawPlaylistEntries.compactMap { trackDictionary[$0.href] }
     return tracks
 }
 
-private func extractPlaylistData(from document: Document) throws -> [String] {
-    return try document.select(".track_history_item > a")
-        .compactMap { try? $0.attr("href") }
+private func loadStationPlaylist(forStation station: String) async throws -> [RawPlaylistEntry] {
+    let document = try await loadStationPage(forStation: station)
+    let rawPlaylistEntries = try extractRawPlaylistEntries(from: document)
+        .filter { !$0.href.isEmpty }
+    return rawPlaylistEntries
+}
+
+private func extractRawPlaylistEntries(from document: Document) throws -> [RawPlaylistEntry] {
+    let lines = try document.select("table.tablelist-schedule tr")
+    return try lines.map { line in
+        let time = try line.select(".time--schedule").text()
+        let href = try line.select(".track_history_item > a").attr("href")
+        return RawPlaylistEntry(time: time, href: href)
+    }
 }
 
 private func extractTrackData(from document: Document) throws -> Track {
@@ -97,7 +117,10 @@ private func extractTrackData(from document: Document) throws -> Track {
     let artist = try document.select(".subject__info > a")
         .filter { try $0.attr("itemprop") == "byArtist" }
         .first?.text(trimAndNormaliseWhitespace: true) ?? ""
-    return Track(name: title, artist: artist, albumName: nil, albumYear: nil)
+    let album = try document.select(".subject__info > a")
+        .filter { try $0.attr("itemprop") == "byAlbum" }
+        .first?.text(trimAndNormaliseWhitespace: true)
+    return Track(name: title, artist: artist, albumName: album)
 }
 
 private func loadStationPage(forStation station: String) async throws -> Document {
@@ -117,7 +140,7 @@ private func loadAndParsePage(for url: URL) async throws -> Document {
 }
 
 private func createUrl(forStation station: String) throws -> URL {
-    let url = URL(string: "https://onlineradiobox.com/de/\(station)/playlist")
+    let url = URL(string: "https://onlineradiobox.com/de/\(station)/playlist/1")
     guard let url else { throw ORBTSError.unableToBuildUrl(station: station) }
     return url
 }
