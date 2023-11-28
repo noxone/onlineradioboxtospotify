@@ -3,6 +3,8 @@ import AWSLambdaRuntime
 import AsyncHTTPClient
 import SwiftSoup
 import CollectionConcurrencyKit
+import SpotifyWebAPI
+import Combine
 import os.log
 
 fileprivate let logger = Logger(subsystem: "OnlineRadioBoxToSpotify", category: "main")
@@ -16,6 +18,9 @@ let urlSession = URLSession(configuration: {
 defer {
     urlSession.invalidateAndCancel()
 }
+
+let spotify = SpotifyAPI(authorizationManager: ClientCredentialsFlowManager(clientId: spotifyClientId, clientSecret: spotifyClientSecret))
+private var cancellables: Set<AnyCancellable> = []
 
 struct Input: Codable {
     let station: String
@@ -31,7 +36,7 @@ struct RawPlaylistEntry {
     let href: String
 }
 
-struct Track {
+struct ORBTrack {
     let name: String
     let artist: String
     let albumName: String?
@@ -72,8 +77,10 @@ private func actualLogicToRun(with input: Input) async -> Output {
     var count = -1
     do {
         let tracks = try await loadTrackInformation(forStation: input.station)
-        count = tracks.count
         print(tracks)
+        let spots = try await convertToSpotify(tracks)
+        count = spots.count
+        print(spots)
     } catch {
         logger.error("Error loading data: \(error.localizedDescription)")
     }
@@ -81,16 +88,35 @@ private func actualLogicToRun(with input: Input) async -> Output {
     return output
 }
 
-private func loadTrackInformation(forStation station: String) async throws -> [Track] {
+private func convertToSpotify(_ tracks: [ORBTrack]) async throws -> [Track] {
+    try await spotify.authorizationManager.authorize().async()
+    
+    let spots = try await tracks.asyncCompactMap { try await searchSpotify(forTrack: $0) }
+    return spots
+}
+
+private func createPlaylist(from tracks: [Track]) async throws {
+    let playlist = try await spotify.playlist("").async()
+}
+
+private func searchSpotify(forTrack track: ORBTrack) async throws -> Track? {
+    let result = try await spotify.search(query: "\(track.artist) - \(track.name)", categories: [.track]).async()
+    return result.tracks?.items.first
+}
+
+private func loadTrackInformation(forStation station: String) async throws -> [ORBTrack] {
     let rawPlaylistEntries = try await loadStationPlaylist(forStation: station)
+        // FIXME: REMOVE NEXT LINE
+        .prefix(10)
     let hrefs = Set(rawPlaylistEntries.map { $0.href })
-    let trackDictionary = try await hrefs.concurrentMap { href in
-        let document = try await loadTrackPage(forHref: href)
-        let track = try extractTrackData(from: document)
-        return (href: href, track: track)
-    }.reduce(into: [String:Track]()) { map, tuple in
-        map[tuple.href] = tuple.track
-    }
+    let trackDictionary = try await hrefs
+        .concurrentMap { href in
+            let document = try await loadTrackPage(forHref: href)
+            let track = try extractTrackData(from: document)
+            return (href: href, track: track)
+        }.reduce(into: [String:ORBTrack]()) { map, tuple in
+            map[tuple.href] = tuple.track
+        }
     
     let tracks = rawPlaylistEntries.compactMap { trackDictionary[$0.href] }
     return tracks
@@ -112,7 +138,7 @@ private func extractRawPlaylistEntries(from document: Document) throws -> [RawPl
     }
 }
 
-private func extractTrackData(from document: Document) throws -> Track {
+private func extractTrackData(from document: Document) throws -> ORBTrack {
     let title = try document.select(".subject__title").text(trimAndNormaliseWhitespace: true)
     let artist = try document.select(".subject__info > a")
         .filter { try $0.attr("itemprop") == "byArtist" }
@@ -120,7 +146,7 @@ private func extractTrackData(from document: Document) throws -> Track {
     let album = try document.select(".subject__info > a")
         .filter { try $0.attr("itemprop") == "byAlbum" }
         .first?.text(trimAndNormaliseWhitespace: true)
-    return Track(name: title, artist: artist, albumName: album)
+    return ORBTrack(name: title, artist: artist, albumName: album)
 }
 
 private func loadStationPage(forStation station: String) async throws -> Document {
@@ -187,3 +213,24 @@ fileprivate extension HTTPURLResponse {
     }
 }
 
+// https://medium.com/geekculture/from-combine-to-async-await-c08bf1d15b77
+extension AnyPublisher {
+    func async() async throws -> Output {
+        try await withCheckedThrowingContinuation { continuation in
+            var cancellable: AnyCancellable?
+            
+            cancellable = first()
+                .sink { result in
+                    switch result {
+                    case .finished:
+                        break
+                    case let .failure(error):
+                        continuation.resume(throwing: error)
+                    }
+                    cancellable?.cancel()
+                } receiveValue: { value in
+                    continuation.resume(with: .success(value))
+                }
+        }
+    }
+}

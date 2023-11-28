@@ -26,6 +26,7 @@ let package = Package(
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
+                .product(name: "SpotifyAPI", package: "SpotifyAPI"),
             ]
         ),
         // Targets are the basic building blocks of a package, defining a module or a test suite.
