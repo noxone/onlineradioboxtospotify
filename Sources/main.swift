@@ -2,7 +2,8 @@ import Foundation
 import AWSLambdaRuntime
 import os.log
 
-fileprivate let logger = Logger(subsystem: "OnlineRadioBoxToSpotify", category: "main")
+let subsystem = "OnlineRadioBoxToSpotify"
+fileprivate let logger = Logger(subsystem: subsystem, category: "main")
 
 let urlSession = URLSession(configuration: {
     let sessionConfig = URLSessionConfiguration.default
@@ -28,7 +29,7 @@ func main() {
     runAndWait {
         let input = Input(station: "radiohamburg")
         let output = await actualLogicToRun(with: input)
-        print("item count: \(output.items)")
+        logger.info("item count: \(output.items)")
     }
 }
 
@@ -48,11 +49,14 @@ private func runAndWait(_ code: @escaping () async -> Void) {
 private func actualLogicToRun(with input: Input) async -> Output {
     var count = -1
     do {
+        let spotify = Spotify()
+        try await spotify.logInToSpotify()
+
         let tracks = try await loadTrackInformation(forStation: input.station)
-        print(tracks)
-        let spots = try await convertToSpotify(tracks)
+        logger.info("\(String(describing: tracks))")
+        let spots = try await spotify.convertToSpotify(tracks)
         count = spots.count
-        print(spots)
+        logger.info("\(spots)")
     } catch {
         logger.error("Error loading data: \(error.localizedDescription)")
     }
