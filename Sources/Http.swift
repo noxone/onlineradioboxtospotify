@@ -26,7 +26,7 @@ class Http {
         guard response is HTTPURLResponse else { throw ORBTSError.invalidResponseType }
         let httpResponse = response as! HTTPURLResponse
         guard 200..<300 ~= httpResponse.statusCode else { throw ORBTSError.downloadFailed }
-        logger.info("Loaded \(data.count) bytes from \(url.absoluteString)")
+        // logger.info("Loaded \(data.count) bytes from \(url.absoluteString)")
         if let content = String(data: data, encoding: httpResponse.encoding) {
             return content
         } else {

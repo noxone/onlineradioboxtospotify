@@ -57,6 +57,10 @@ class Spotify {
         return spots
     }
     
+    func updatePlaylist(_ playlistName: String, with tracks: [Track]) async throws {
+        
+    }
+    
     private func createPlaylist(from tracks: [Track]) async throws {
         let playlist = try await spotify.playlist("Radio/Radio Hamburg").async()
         logger.info("Playlist: \(String(describing: playlist))")
