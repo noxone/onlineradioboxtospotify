@@ -28,7 +28,7 @@ class Spotify {
     private func authorizationManagerDidChange() {
         do {
             let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
-            let url = URL(string: "\(FileManager.default.currentDirectoryPath)/credentials.txt")!
+            let url = URL(string: "file://\(FileManager.default.currentDirectoryPath)/credentials.txt")!
             logger.info("Write to: \(url.absoluteString)")
             try authManagerData.write(to: url)
         } catch {
@@ -37,7 +37,14 @@ class Spotify {
     }
     
     func logInToSpotify() async throws {
-        let redirectUrl: String? = nil// ""
+        if let url = URL(string: locationOfSecrets) {
+            let data = try Data(contentsOf: url)
+            let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
+            spotify.authorizationManager = authorizationManager
+            return
+        }
+        
+        let redirectUrl: String? = nil // ""
 
         if let redirectUrl {
             try await spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: redirectUrl)!).async()
