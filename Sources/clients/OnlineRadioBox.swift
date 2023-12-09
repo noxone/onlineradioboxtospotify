@@ -12,7 +12,13 @@ import SwiftSoup
 class OnlineradioBox {
     private let http = Http()
     
-    func loadTrackInformation(forStation station: String) async throws -> [ORBTrack] {
+    func loadTrackInformation(forStation station: String, forDay day: ORBDay) async throws -> [ORBTrack] {
+        try await loadTrackInformation(forStation: station, forTodayMinus: day.dayCount)
+    }
+    
+    func loadTrackInformation(forStation station: String, forTodayMinus todayMinus: Int = 1) async throws -> [ORBTrack] {
+        guard todayMinus >= 0 else { throw ORBTSError.numberOfDaysTooLow(number: todayMinus) }
+            
         let rawPlaylistEntries = try await loadStationPlaylist(forStation: station)
         // FIXME: REMOVE NEXT LINE
             .prefix(10)
@@ -86,7 +92,7 @@ class OnlineradioBox {
     }
 }
 
-fileprivate struct ORBPlaylistEntry {
+private struct ORBPlaylistEntry {
     let time: String
     let href: String
 }
@@ -97,8 +103,24 @@ struct ORBTrack {
     let albumName: String?
 }
 
+enum ORBDay {
+    case dayInPast(dayCount: Int)
+    
+    static let today = ORBDay.dayInPast(dayCount: 0)
+    static let yesterday = ORBDay.dayInPast(dayCount: 1)
+    static let dayBeforeYesterday = ORBDay.dayInPast(dayCount: 2)
+    
+    var dayCount: Int {
+        if case let .dayInPast(dayCount) = self {
+            return dayCount
+        } else {
+            return 0
+        }
+    }
+}
 
-enum ORBTSError: LocalizedError {
+private enum ORBTSError: LocalizedError {
+    case numberOfDaysTooLow(number: Int)
     case unableToLoadPage
     case invalidResponseType
     case downloadFailed

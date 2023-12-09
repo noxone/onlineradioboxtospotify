@@ -20,8 +20,9 @@ private func actualLogicToRun(with input: Input) async -> Output {
         let trackManager = TrackManager()
         let spotify = Spotify()
         try await spotify.logInToSpotify()
-
-        let tracksFromOrb = try await orb.loadTrackInformation(forStation: input.station)
+        
+        logger.info("Station: \(input.station); days in past: \(input.daysInPast)")
+        let tracksFromOrb = try await orb.loadTrackInformation(forStation: input.station, forTodayMinus: input.daysInPast)
         logger.info("Loaded \(tracksFromOrb.count) tracks from OnlineRadioBox.")
         let playlistTracks = trackManager.generatePlaylist(fromNewInput: tracksFromOrb)
         logger.info("Generated playlist with \(playlistTracks.count) items.")
@@ -37,4 +38,3 @@ private func actualLogicToRun(with input: Input) async -> Output {
     let output = Output(result: "Station: \(input.station)", items: count)
     return output
 }
-
