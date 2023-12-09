@@ -29,15 +29,3 @@ extension AnyPublisher {
         }
     }
 }
-
-func runAndWait(_ code: @escaping () async -> Void) {
-    let group = DispatchGroup()
-    group.enter()
-    
-    Task {
-        await code()
-        group.leave()
-    }
-    
-    group.wait()
-}

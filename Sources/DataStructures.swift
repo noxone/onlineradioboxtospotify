@@ -9,6 +9,7 @@ import Foundation
 
 struct Input: Codable {
     let station: String
+    let daysInPast: Int
     let playlist: String
 }
 

@@ -8,9 +8,9 @@
 import Foundation
 import SpotifyWebAPI
 import Combine
-import os.log
+import Logging
 
-fileprivate let logger = Logger(subsystem: subsystem, category: "spotify")
+fileprivate let logger = Logger(label: "spotify")
 
 class Spotify {
     

@@ -1,18 +1,17 @@
 import Foundation
-import os.log
+import Logging
 
 let subsystem = "OnlineRadioBoxToSpotify"
-fileprivate let logger = Logger(subsystem: subsystem, category: "main")
+fileprivate let logger = Logger(label: "main")
 
-main()
-
-func main() {
-    runAndWait {
-        let input = Input(station: "radiohamburg", playlist: "Radio/Radio Hamburg")
-        _ = await actualLogicToRun(with: input)
+@main
+struct Main {
+    static func main() async {
+        let input = Input(station: "radiohamburg", daysInPast: 3, playlist: "Radio/Radio Hamburg")
+        let output = await actualLogicToRun(with: input)
+        logger.info("\(String(describing: output))")
     }
 }
-
 
 private func actualLogicToRun(with input: Input) async -> Output {
     var count = -1
