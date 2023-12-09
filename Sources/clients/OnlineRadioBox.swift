@@ -19,7 +19,7 @@ class OnlineradioBox {
     func loadTrackInformation(forStation station: String, forTodayMinus todayMinus: Int = 1) async throws -> [ORBTrack] {
         guard todayMinus >= 0 else { throw ORBTSError.numberOfDaysTooLow(number: todayMinus) }
             
-        let rawPlaylistEntries = try await loadStationPlaylist(forStation: station)
+        let rawPlaylistEntries = try await loadStationPlaylist(forStation: station, andAmountOfDays: todayMinus)
         // FIXME: REMOVE NEXT LINE
             .prefix(10)
         let hrefs = Set(rawPlaylistEntries.map { $0.href })
@@ -36,10 +36,13 @@ class OnlineradioBox {
         return tracks
     }
     
-    private func loadStationPlaylist(forStation station: String) async throws -> [ORBPlaylistEntry] {
-        let document = try await loadStationPage(forStation: station)
-        let rawPlaylistEntries = try extractRawPlaylistEntries(from: document)
-            .filter { !$0.href.isEmpty }
+    private func loadStationPlaylist(forStation station: String, andAmountOfDays days: Int) async throws -> [ORBPlaylistEntry] {
+        let documents = try await loadStationPages(forStation: station, andAmountOfDays: days)
+        let rawPlaylistEntries = try await documents
+            .concurrentFlatMap { 
+                try self.extractRawPlaylistEntries(from: $0)
+                    .filter { !$0.href.isEmpty }
+            }
         return rawPlaylistEntries
     }
     
@@ -63,8 +66,13 @@ class OnlineradioBox {
         return ORBTrack(name: title, artist: artist, albumName: album)
     }
     
-    private func loadStationPage(forStation station: String) async throws -> Document {
-        let url = try createUrl(forStation: station)
+    private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [Document] {
+        return try await (0...days)
+            .concurrentMap { try await self.loadStationPage(forStation: station, andDay: $0) }
+    }
+    
+    private func loadStationPage(forStation station: String, andDay day: Int) async throws -> Document {
+        let url = try createUrl(forStation: station, andDay: day)
         return try await loadAndParsePage(for: url)
     }
     
@@ -73,8 +81,8 @@ class OnlineradioBox {
         return try await loadAndParsePage(for: url)
     }
     
-    private func createUrl(forStation station: String) throws -> URL {
-        let url = URL(string: "https://onlineradiobox.com/de/\(station)/playlist/1")
+    private func createUrl(forStation station: String, andDay day: Int) throws -> URL {
+        let url = URL(string: "https://onlineradiobox.com/de/\(station)/playlist/\(day)")
         guard let url else { throw ORBTSError.unableToBuildUrl(station: station) }
         return url
     }
