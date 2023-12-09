@@ -126,11 +126,3 @@ enum ORBDay {
         }
     }
 }
-
-private enum ORBTSError: LocalizedError {
-    case numberOfDaysTooLow(number: Int)
-    case unableToLoadPage
-    case invalidResponseType
-    case downloadFailed
-    case unableToBuildUrl(station: String)
-}
