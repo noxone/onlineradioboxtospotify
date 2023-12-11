@@ -38,5 +38,16 @@ class OnlineradioboxToSpotifyConverter {
         try await trackCache.storeCache()
         let count = await trackCache.count
         logger.info("Persisted cache. Cache contains \(count) items.")
+        
+        logger.info("Now updating details from OnlineRadioBox...")
+        let entriesWithoutTrackInfo = await trackCache.entriesWithoutTrackInfo
+            .map { ORBPlaylistEntry(time: nil, display: "", href: "/track/\($0.orbId)/") }
+        let orbTracks = try await orb.loadTrackDetails(for: entriesWithoutTrackInfo)
+        logger.info("Updating cache entries...")
+        for track in orbTracks {
+            await trackCache.updateEntry(withId: track.id, setTitle: track.name, setArtist: track.artist)
+        }
+        try await trackCache.storeCache()
+        logger.info("Persisted cache.")
     }
 }

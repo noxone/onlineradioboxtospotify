@@ -62,8 +62,9 @@ class OnlineradioBox {
         let hrefs = Set(rawPlaylistEntries.map { $0.href })
         let trackDictionary = try await hrefs
             .concurrentMap { href in
+                let id = self.extractId(fromHref: href)!
                 let document = try await self.loadTrackPage(forHref: href)
-                let track = try self.extractTrackData(from: document)
+                let track = try self.extractTrackData(from: document, withId: id)
                 return (href: href, track: track)
             }.reduce(into: [String:ORBTrack]()) { map, tuple in
                 map[tuple.href] = tuple.track
@@ -71,6 +72,17 @@ class OnlineradioBox {
         
         let tracks = rawPlaylistEntries.compactMap { trackDictionary[$0.href] }
         return tracks
+    }
+    
+    func loadTrackDetails(for tracks: [ORBPlaylistEntry]) async throws -> [ORBTrack] {
+        return try await tracks.concurrentMap { try await self.loadTrackDetails(for: $0) }
+            .compactMap { $0 }
+    }
+    
+    private func loadTrackDetails(for track: ORBPlaylistEntry) async throws -> ORBTrack? {
+        guard let id = extractId(fromHref: track.href) else { return nil }
+        let page = try await loadTrackPage(forHref: track.href)
+        return try extractTrackData(from: page, withId: id)
     }
     
     func loadPlaylist(forStation station: String, forTheLastDays todayMinus: Int = 1) async throws -> [ORBPlaylistEntry] {
@@ -109,7 +121,7 @@ class OnlineradioBox {
         return (hour: Int(match.output.1)!, minute: Int(match.output.2)!)
     }
     
-    private func extractTrackData(from document: Document) throws -> ORBTrack {
+    private func extractTrackData(from document: Document, withId id: String) throws -> ORBTrack {
         let title = try document.select(".subject__title").text(trimAndNormaliseWhitespace: true)
         let artist = try document.select(".subject__info > a")
             .filter { try $0.attr("itemprop") == "byArtist" }
@@ -117,7 +129,7 @@ class OnlineradioBox {
         let album = try document.select(".subject__info > a")
             .filter { try $0.attr("itemprop") == "byAlbum" }
             .first?.text(trimAndNormaliseWhitespace: true)
-        return ORBTrack(name: title, artist: artist, albumName: album)
+        return ORBTrack(id: id, name: title, artist: artist, albumName: album)
     }
     
     private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [(date: Date, document: Document)] {
@@ -161,6 +173,7 @@ struct ORBPlaylistEntry {
 }
 
 struct ORBTrack {
+    let id: String
     let name: String
     let artist: String
     let albumName: String?

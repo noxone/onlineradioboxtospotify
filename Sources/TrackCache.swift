@@ -59,7 +59,7 @@ actor TrackCache {
             lastPlaytime: lastPlaytime,
             title: title ?? oldEntry?.title,
             artist: artist ?? oldEntry?.artist,
-            lastCheck: didSpotifyCheck ? Date() : oldEntry?.lastCheck,
+            spotifyLastCheck: didSpotifyCheck ? Date() : oldEntry?.spotifyLastCheck,
             spotifyUri: spotifyUri ?? oldEntry?.spotifyUri
         )
         setEntry(newEntry, forID: id)
@@ -72,6 +72,10 @@ actor TrackCache {
     func getEntry(forId id: ID) -> CacheEntry? {
         return cache[id]
     }
+    
+    var entriesWithoutTrackInfo: [CacheEntry] {
+        cache.values.filter { $0.title == nil || $0.artist == nil }
+    }
 }
 
 struct CacheEntry : Codable {
@@ -80,6 +84,6 @@ struct CacheEntry : Codable {
     let lastPlaytime: Date?
     let title: String?
     let artist: String?
-    let lastCheck: Date?
+    let spotifyLastCheck: Date?
     let spotifyUri: String?
 }
