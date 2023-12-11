@@ -19,7 +19,7 @@ let package = Package(
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", .upToNextMajor(from: "0.2.0")),
     ],
     targets: [
-        .target(
+        .executableTarget(
             name: "OnlineRadioBoxToSpotify",
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),

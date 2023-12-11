@@ -8,7 +8,7 @@ main()
 
 func main() {
     runAndWait {
-        let input = Input(station: "radiohamburg", daysInPast: 3, playlist: "Radio/Radio Hamburg")
+        let input = Input(station: "radiohamburg", daysInPast: 3, playlist: "bernd Brot 1233")
         _ = await actualLogicToRun(with: input)
     }
 }
@@ -22,6 +22,7 @@ private func actualLogicToRun(with input: Input) async -> Output {
         let spotify = Spotify()
         try await spotify.logInToSpotify()
         
+        
         logger.info("Station: \(input.station); days in past: \(input.daysInPast)")
         let tracksFromOrb = try await orb.loadTrackInformation(forStation: input.station, forTodayMinus: input.daysInPast)
         logger.info("Loaded \(tracksFromOrb.count) tracks from OnlineRadioBox.")
@@ -29,8 +30,11 @@ private func actualLogicToRun(with input: Input) async -> Output {
         logger.info("Generated playlist with \(playlistTracks.count) items.")
         let spots = try await spotify.convertToSpotify(playlistTracks)
         logger.info("Found \(spots.count) tracks on Spotify.")
-        try await spotify.updatePlaylist(input.playlist, with: spots)
+        let playlistUri = try await spotify.getOrCreate(playlist: input.playlist)
+        logger.info("Playlist uri: \(playlistUri)")
+        try await spotify.updatePlaylist(uri: playlistUri, with: spots)
         logger.info("Updated playlist.")
+        //let spots = [0]
         
         count = spots.count
     } catch {

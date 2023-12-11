@@ -37,8 +37,7 @@ class Spotify {
     }
     
     func logInToSpotify() async throws {
-        if let url = URL(string: locationOfSecrets) {
-            let data = try Data(contentsOf: url)
+        if let url = URL(string: locationOfSecrets), let data = try? Data(contentsOf: url) {
             let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
             spotify.authorizationManager = authorizationManager
             return
@@ -49,7 +48,7 @@ class Spotify {
         if let redirectUrl {
             try await spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: redirectUrl)!).async()
         } else {
-            let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: "http://localhost:7000")!, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate])
+            let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: "http://localhost:7000")!, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
             guard let url else { fatalError("No URL created.") }
             logger.info("\(url)")
             fatalError()
@@ -64,8 +63,27 @@ class Spotify {
         return spots
     }
     
-    func updatePlaylist(_ playlistName: String, with tracks: [Track]) async throws {
-        
+    func updatePlaylist(uri playlistUri: String, with tracks: [Track]) async throws {
+        _ = try await spotify.replaceAllPlaylistItems(playlistUri, with: tracks.compactMap { $0.uri } ).async()
+    }
+    
+    private func getPlaylist(withName name: String) async throws -> Playlist<PlaylistItemsReference>? {
+        return try await spotify.currentUserPlaylists().async()
+            .items
+            .filter { $0.name == name }
+            .first
+    }
+    
+    func getOrCreate(playlist name: String) async throws -> String {
+        let currentUser = try await spotify.currentUserProfile().async()
+        let allPlaylists = try await spotify.userPlaylists(for: currentUser.uri).async()
+        let playlist = allPlaylists.items.first(where: { $0.name == name })
+        if let playlist {
+            return playlist.uri
+        }
+        let details = PlaylistDetails(name: name, isPublic: false, isCollaborative: false)
+        let response = try await spotify.createPlaylist(for: currentUser.uri, details).async()
+        return response.uri
     }
     
     private func createPlaylist(from tracks: [Track]) async throws {
