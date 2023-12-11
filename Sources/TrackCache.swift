@@ -43,16 +43,20 @@ actor TrackCache {
         cache.count
     }
     
-    func updateEntry(withId id: ID, addDisplayName displayName: String? = nil, setTitle title: String? = nil, setArtist artist: String? = nil, setSpotifyUri spotifyUri: String? = nil, didSpotifyCheck: Bool = false) {
+    func updateEntry(withId id: ID, addDisplayName displayName: String? = nil, playingTime: Date? = nil, setTitle title: String? = nil, setArtist artist: String? = nil, setSpotifyUri spotifyUri: String? = nil, didSpotifyCheck: Bool = false) {
         let oldEntry = getEntry(forId: id)
         var names = Array(oldEntry?.orbDisplayNames ?? [])
         if let displayName {
             names.append(displayName)
         }
+        var lastPlaytime = oldEntry?.lastPlaytime
+        if let playingTime, lastPlaytime == nil || playingTime > lastPlaytime! {
+            lastPlaytime = playingTime
+        }
         let newEntry = CacheEntry(
             orbId: id,
             orbDisplayNames: Set(names),
-            lastPlaytime: nil,
+            lastPlaytime: lastPlaytime,
             title: title ?? oldEntry?.title,
             artist: artist ?? oldEntry?.artist,
             lastCheck: didSpotifyCheck ? Date() : oldEntry?.lastCheck,

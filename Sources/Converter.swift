@@ -32,7 +32,7 @@ class OnlineradioboxToSpotifyConverter {
         
         for playlistEntry in orbPlaylist {
             if let id = orb.extractId(from: playlistEntry) {
-                await trackCache.updateEntry(withId: id, addDisplayName: playlistEntry.display)
+                await trackCache.updateEntry(withId: id, addDisplayName: playlistEntry.display, playingTime: playlistEntry.time)
             }
         }
         try await trackCache.storeCache()

@@ -18,6 +18,19 @@ class OnlineradioBox {
             }
         }
     }
+    private static let regexForTime = Regex {
+        Capture {
+            OneOrMore {
+                .digit
+            }
+        }
+        Character(":")
+        Capture {
+            OneOrMore {
+                .digit
+            }
+        }
+    }
     private let http = Http()
     
     init() {}
@@ -70,21 +83,30 @@ class OnlineradioBox {
         let documents = try await loadStationPages(forStation: station, andAmountOfDays: days)
         let rawPlaylistEntries = try await documents
             .concurrentFlatMap { 
-                try self.extractRawPlaylistEntries(from: $0)
+                try self.extractRawPlaylistEntries(from: $0.document, forDate: $0.date)
                     .filter { !$0.href.isEmpty }
             }
         return rawPlaylistEntries
     }
     
-    private func extractRawPlaylistEntries(from document: Document) throws -> [ORBPlaylistEntry] {
+    private func extractRawPlaylistEntries(from document: Document, forDate date: Date) throws -> [ORBPlaylistEntry] {
         let lines = try document.select("table.tablelist-schedule tr")
         return try lines.map { line in
             let time = try line.select(".time--schedule").text()
             let link = try line.select(".track_history_item > a")
             let href = try link.attr("href")
             let display = try link.text(trimAndNormaliseWhitespace: true)
-            return ORBPlaylistEntry(time: time, display: display, href: href)
+            var entryTime: Date? = nil
+            if let parsedTime = parse(time: time) {
+                entryTime = date.at(hour: parsedTime.hour, minute: parsedTime.minute)
+            }
+            return ORBPlaylistEntry(time: entryTime, display: display, href: href)
         }
+    }
+    
+    private func parse(time: String) -> (hour: Int, minute: Int)? {
+        guard let match = time.firstMatch(of: OnlineradioBox.regexForTime) else { return nil }
+        return (hour: Int(match.output.1)!, minute: Int(match.output.2)!)
     }
     
     private func extractTrackData(from document: Document) throws -> ORBTrack {
@@ -98,14 +120,14 @@ class OnlineradioBox {
         return ORBTrack(name: title, artist: artist, albumName: album)
     }
     
-    private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [Document] {
+    private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [(date: Date, document: Document)] {
         return try await (0...days)
             .concurrentMap { try await self.loadStationPage(forStation: station, andDay: $0) }
     }
     
-    private func loadStationPage(forStation station: String, andDay day: Int) async throws -> Document {
+    private func loadStationPage(forStation station: String, andDay day: Int) async throws -> (date: Date, document: Document) {
         let url = try createUrl(forStation: station, andDay: day)
-        return try await loadAndParsePage(for: url)
+        return try await (date: Date().minus(days: day), document: loadAndParsePage(for: url))
     }
     
     private func loadTrackPage(forHref href: String) async throws -> Document {
@@ -133,7 +155,7 @@ class OnlineradioBox {
 }
 
 struct ORBPlaylistEntry {
-    let time: String
+    let time: Date?
     let display: String
     let href: String
 }
