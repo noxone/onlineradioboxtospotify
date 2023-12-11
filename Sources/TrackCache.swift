@@ -43,7 +43,7 @@ actor TrackCache {
         cache.count
     }
     
-    func updateEntry(withId id: ID, addDisplayName displayName: String? = nil, playingTime: Date? = nil, setTitle title: String? = nil, setArtist artist: String? = nil, setSpotifyUri spotifyUri: String? = nil, didSpotifyCheck: Bool = false) {
+    func updateEntry(withId id: ID, addDisplayName displayName: String? = nil, playingTime: Date? = nil, setTitle title: String? = nil, setArtist artist: String? = nil, setSpotifyUri spotifyUri: String? = nil, setSpotifyTitle spotifyTitle: String? = nil, setSpotifyArtist spotifyArtist: String? = nil, didSpotifyCheck: Bool = false) {
         let oldEntry = getEntry(forId: id)
         var names = Array(oldEntry?.orbDisplayNames ?? [])
         if let displayName {
@@ -60,7 +60,9 @@ actor TrackCache {
             title: title ?? oldEntry?.title,
             artist: artist ?? oldEntry?.artist,
             spotifyLastCheck: didSpotifyCheck ? Date() : oldEntry?.spotifyLastCheck,
-            spotifyUri: spotifyUri ?? oldEntry?.spotifyUri
+            spotifyUri: spotifyUri ?? oldEntry?.spotifyUri,
+            spotifyTitle: spotifyTitle ?? oldEntry?.spotifyTitle,
+            spotifyArtist: spotifyArtist ?? oldEntry?.spotifyArtist
         )
         setEntry(newEntry, forID: id)
     }
@@ -76,6 +78,10 @@ actor TrackCache {
     var entriesWithoutTrackInfo: [CacheEntry] {
         cache.values.filter { $0.title == nil || $0.artist == nil }
     }
+    
+    var entriesWithoutSpotifyInfo: [CacheEntry] {
+        cache.values.filter { $0.spotifyUri == nil }
+    }
 }
 
 struct CacheEntry : Codable {
@@ -86,4 +92,6 @@ struct CacheEntry : Codable {
     let artist: String?
     let spotifyLastCheck: Date?
     let spotifyUri: String?
+    let spotifyTitle: String?
+    let spotifyArtist: String?
 }

@@ -55,11 +55,18 @@ class Spotify {
     }
     
     
-    func convertToSpotify(_ tracks: [ORBTrack]) async throws -> [Track] {
-        //try await spotify.authorizationManager.authorize().async()
-        
-        let spots = try await tracks.asyncCompactMap { try await searchSpotify(forTrack: $0) }
-        return spots
+    func convertToSpotify(_ tracks: [ORBTrack]) async throws -> [(id: String, track: Track)] {
+        return try await tracks
+            .asyncMap { try await (id: $0.id, track: searchSpotify(forTrack: $0)) }
+            .filter { $0.track != nil }
+            .map { (id: $0.id, track: $0.track!) }
+    }
+    
+    func convertToSpotify(_ tracks: [SpotifyTrackRequest]) async throws -> [(id: String, track: Track)] {
+        return try await tracks
+            .concurrentMap { try await (id: $0.id, track: self.searchSpotify(forRequest: $0)) }
+            .filter { $0.track != nil }
+            .map { (id: $0.id, track: $0.track!) }
     }
     
     func updatePlaylist(uri playlistUri: String, with tracks: [Track]) async throws {
@@ -91,7 +98,28 @@ class Spotify {
     }
     
     private func searchSpotify(forTrack track: ORBTrack) async throws -> Track? {
-        let result = try await spotify.search(query: "\(track.artist) - \(track.name)", categories: [.track]).async()
+        return try await searchSpotify(query: "\(track.artist) - \(track.title)")
+    }
+    
+    private func searchSpotify(forRequest request: SpotifyTrackRequest) async throws -> Track? {
+        for text in request.texts {
+            let track = try await searchSpotify(query: text)
+            if let track {
+                return track
+            }
+        }
+        return try await searchSpotify(query: "\(request.artist ?? "") - \(request.title ?? "")")
+    }
+    
+    private func searchSpotify(query: String) async throws -> Track? {
+        let result = try await spotify.search(query: query, categories: [.track]).async()
         return result.tracks?.items.first
     }
+}
+
+struct SpotifyTrackRequest {
+    let id: String
+    let texts: [String]
+    let title: String?
+    let artist: String?
 }

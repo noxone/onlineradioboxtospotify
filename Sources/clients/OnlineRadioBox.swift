@@ -129,7 +129,7 @@ class OnlineradioBox {
         let album = try document.select(".subject__info > a")
             .filter { try $0.attr("itemprop") == "byAlbum" }
             .first?.text(trimAndNormaliseWhitespace: true)
-        return ORBTrack(id: id, name: title, artist: artist, albumName: album)
+        return ORBTrack(id: id, title: title, artist: artist, albumName: album)
     }
     
     private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [(date: Date, document: Document)] {
@@ -174,7 +174,7 @@ struct ORBPlaylistEntry {
 
 struct ORBTrack {
     let id: String
-    let name: String
+    let title: String
     let artist: String
     let albumName: String?
 }
