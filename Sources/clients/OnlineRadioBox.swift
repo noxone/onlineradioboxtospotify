@@ -39,7 +39,7 @@ class OnlineradioBox {
         return extractId(fromHref: playlistEntry.href)
     }
     
-    private func extractId(fromHref href: String) -> String? {
+    func extractId(fromHref href: String) -> String? {
         if let match = href.firstMatch(of: OnlineradioBox.regexForId) {
             let id = String(match.output.1).trimmingCharacters(in: .whitespacesAndNewlines)
             if !id.isEmpty {

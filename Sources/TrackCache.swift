@@ -82,6 +82,10 @@ actor TrackCache {
     var entriesWithoutSpotifyInfo: [CacheEntry] {
         cache.values.filter { $0.spotifyUri == nil }
     }
+    
+    func getSpotifyUri(forId id: ID) -> String? {
+        return cache[id]?.spotifyUri
+    }
 }
 
 struct CacheEntry : Codable {

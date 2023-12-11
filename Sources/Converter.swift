@@ -21,12 +21,19 @@ class OnlineradioboxToSpotifyConverter {
     }
     
     func doDownloadAndConversion(for input: Input) async throws {
-        try await doDownloadAndConversion(forStation: input.station, forTheLastDays: input.daysInPast, andUploadToSpotifyPlaylist: input.playlist)
+        try await doDownloadAndConversion(forStation: input.station, forTheLastDays: input.daysInPast, andUploadToSpotifyPlaylist: input.playlist, thatShallBePublic: input.playlistShallBePublic)
     }
     
-    private func doDownloadAndConversion(forStation station: String, forTheLastDays days: Int, andUploadToSpotifyPlaylist playlistName: String) async throws {
+    private func doDownloadAndConversion(forStation station: String, forTheLastDays days: Int, andUploadToSpotifyPlaylist playlistName: String, thatShallBePublic playlistIsPublic: Bool) async throws {
         logger.info("Starting conversion application for station '\(station)' for \(days) day(s).")
         
+        let orbPlaylist = try await loadPlaylistFromOnlineRadioBox(forStation: station, forTheLastDays: days)
+        try await loadTrackDetailsFromOnlineRadioBox()
+        try await matchSongsWithSpotify()
+        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic)
+    }
+    
+    private func loadPlaylistFromOnlineRadioBox(forStation station: String, forTheLastDays days: Int) async throws -> [ORBPlaylistEntry] {
         logger.info("---- Loading playlist from OnlineRadioBox ----")
         let orbPlaylist = try await orb.loadPlaylist(forStation: station, forTheLastDays: days)
         logger.info("Downloaded \(orbPlaylist.count) playlist items")
@@ -39,7 +46,10 @@ class OnlineradioboxToSpotifyConverter {
         try await trackCache.storeCache()
         let count = await trackCache.count
         logger.info("Persisted cache. Cache contains \(count) items.")
-        
+        return orbPlaylist
+    }
+    
+    private func loadTrackDetailsFromOnlineRadioBox() async throws {
         logger.info("---- Retreiving track details ----")
         let entriesWithoutTrackInfo = await trackCache.entriesWithoutTrackInfo
             .map { ORBPlaylistEntry(time: nil, display: "", href: "/track/\($0.orbId)/") }
@@ -51,7 +61,9 @@ class OnlineradioboxToSpotifyConverter {
         }
         try await trackCache.storeCache()
         logger.info("Persisted cache.")
-        
+    }
+    
+    private func matchSongsWithSpotify() async throws {
         logger.info("---- Matching with spotify ----")
         let entriesWithoutSpotifyInfo = await trackCache.entriesWithoutSpotifyInfo
             .compactMap {
@@ -65,5 +77,18 @@ class OnlineradioboxToSpotifyConverter {
         }
         try await trackCache.storeCache()
         logger.info("Persisted cache.")
+    }
+    
+    private func updateSpotifyPlaylist(withTracksFrom orbPlaylist: [ORBPlaylistEntry], playlistName: String, playlistIsPublic: Bool) async throws {
+        logger.info("---- Updating Spotify playlist ----")
+        logger.info("Generating playlist content...")
+        let spotifyUris = await trackManager.generatePlaylist(fromNewInput: orbPlaylist)
+            .compactMap { orb.extractId(fromHref: $0) }
+            .asyncMap { await trackCache.getSpotifyUri(forId: $0) }
+            .compactMap { $0 }
+        logger.info("Creating or fetching playlist")
+        let playlist = try await spotify.getOrCreate(playlist: playlistName, isPublic: playlistIsPublic)
+        logger.info("Updating playlist with \(spotifyUris.count) entries.")
+        try await spotify.updatePlaylist(uri: playlist.uri, withUris: spotifyUris)
     }
 }

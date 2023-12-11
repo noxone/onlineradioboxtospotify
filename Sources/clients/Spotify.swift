@@ -70,9 +70,17 @@ class Spotify {
     }
     
     func updatePlaylist(uri playlistUri: String, with tracks: [Track]) async throws {
-        _ = try await spotify.replaceAllPlaylistItems(playlistUri, with: tracks.compactMap { $0.uri } ).async()
+        try await updatePlaylist(uri: playlistUri, withUris: tracks.compactMap { $0.uri })
     }
-    
+
+    func updatePlaylist(uri playlistUri: String, withUris tracks: [String]) async throws {
+        _ = try await spotify.replaceAllPlaylistItems(playlistUri, with: [] ).async()
+        try await tracks.chunked(size: 100)
+            .asyncForEach {
+                _ = try await spotify.addToPlaylist(playlistUri, uris: $0).async()
+            }
+    }
+
     private func getPlaylist(withName name: String) async throws -> Playlist<PlaylistItemsReference>? {
         return try await spotify.currentUserPlaylists().async()
             .items

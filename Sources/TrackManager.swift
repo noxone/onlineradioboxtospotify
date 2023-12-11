@@ -8,7 +8,25 @@
 import Foundation
 
 class TrackManager {
-    func generatePlaylist(fromNewInput tracks: [ORBTrack]) -> [ORBTrack] {
-        return tracks
+    func generatePlaylist(fromNewInput tracks: [ORBPlaylistEntry]) -> [String] {
+        let listedTracks = Dictionary(grouping: tracks.filter { $0.time != nil }, by: {$0.href})
+        
+        let list =  listedTracks
+            .map { (id: $0.key, time: $0.value.map { $0.time! }.max(), count: $0.value.count) }
+            .sorted(by: { (lhs,rhs) in
+                if lhs.count == rhs.count, let lhsTime = lhs.time, let rhsTime = rhs.time {
+                    return lhsTime < rhsTime
+                }
+                return lhs.count < rhs.count
+            })
+            .reversed()
+        
+        return list
+            .map { $0.id }
     }
+}
+
+fileprivate struct Track : Hashable {
+    let id: String
+    let time: Date
 }
