@@ -28,8 +28,7 @@ class Spotify {
     private func authorizationManagerDidChange() {
         do {
             let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
-            let url = URL(string: "file://\(FileManager.default.currentDirectoryPath)/credentials.txt")!
-            logger.info("Write to: \(url.absoluteString)")
+            let url = Files.url(forFilename: "credentials.txt")
             try authManagerData.write(to: url)
         } catch {
             logger.error("Unable to store credentials: \(error.localizedDescription)")
@@ -74,14 +73,14 @@ class Spotify {
             .first
     }
     
-    func getOrCreate(playlist name: String) async throws -> String {
+    func getOrCreate(playlist name: String, isPublic: Bool) async throws -> String {
         let currentUser = try await spotify.currentUserProfile().async()
         let allPlaylists = try await spotify.userPlaylists(for: currentUser.uri).async()
         let playlist = allPlaylists.items.first(where: { $0.name == name })
         if let playlist {
             return playlist.uri
         }
-        let details = PlaylistDetails(name: name, isPublic: false, isCollaborative: false)
+        let details = PlaylistDetails(name: name, isPublic: isPublic, isCollaborative: false)
         let response = try await spotify.createPlaylist(for: currentUser.uri, details).async()
         return response.uri
     }

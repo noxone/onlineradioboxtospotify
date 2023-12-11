@@ -8,9 +8,33 @@
 import Foundation
 import CollectionConcurrencyKit
 import SwiftSoup
+import RegexBuilder
 
 class OnlineradioBox {
+    private static let regexForId = Regex {
+        Capture {
+            OneOrMore {
+                .digit
+            }
+        }
+    }
     private let http = Http()
+    
+    init() {}
+    
+    func extractId(from playlistEntry: ORBPlaylistEntry) -> String? {
+        return extractId(fromHref: playlistEntry.href)
+    }
+    
+    private func extractId(fromHref href: String) -> String? {
+        if let match = href.firstMatch(of: OnlineradioBox.regexForId) {
+            let id = String(match.output.1).trimmingCharacters(in: .whitespacesAndNewlines)
+            if !id.isEmpty {
+                return id
+            }
+        }
+        return nil
+    }
     
     func loadTrackInformation(forStation station: String, forDay day: ORBDay) async throws -> [ORBTrack] {
         try await loadTrackInformation(forStation: station, forTodayMinus: day.dayCount)
@@ -36,6 +60,12 @@ class OnlineradioBox {
         return tracks
     }
     
+    func loadPlaylist(forStation station: String, forTheLastDays todayMinus: Int = 1) async throws -> [ORBPlaylistEntry] {
+        guard todayMinus >= 0 else { throw ORBTSError.numberOfDaysTooLow(number: todayMinus) }
+        
+        return try await loadStationPlaylist(forStation: station, andAmountOfDays: todayMinus)
+    }
+    
     private func loadStationPlaylist(forStation station: String, andAmountOfDays days: Int) async throws -> [ORBPlaylistEntry] {
         let documents = try await loadStationPages(forStation: station, andAmountOfDays: days)
         let rawPlaylistEntries = try await documents
@@ -50,8 +80,10 @@ class OnlineradioBox {
         let lines = try document.select("table.tablelist-schedule tr")
         return try lines.map { line in
             let time = try line.select(".time--schedule").text()
-            let href = try line.select(".track_history_item > a").attr("href")
-            return ORBPlaylistEntry(time: time, href: href)
+            let link = try line.select(".track_history_item > a")
+            let href = try link.attr("href")
+            let display = try link.text(trimAndNormaliseWhitespace: true)
+            return ORBPlaylistEntry(time: time, display: display, href: href)
         }
     }
     
@@ -100,8 +132,9 @@ class OnlineradioBox {
     }
 }
 
-private struct ORBPlaylistEntry {
+struct ORBPlaylistEntry {
     let time: String
+    let display: String
     let href: String
 }
 

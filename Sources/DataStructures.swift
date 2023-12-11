@@ -11,6 +11,7 @@ struct Input: Codable {
     let station: String
     let daysInPast: Int
     let playlist: String
+    let playlistShallBePublic: Bool
 }
 
 struct Output: Codable {

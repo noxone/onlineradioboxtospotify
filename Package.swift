@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "OnlineRadioBoxToSpotify",
     platforms: [
-        .macOS(.v11)
+        .macOS(.v13)
     ],
     products: [
         .executable(name: "OnlineRadioBoxToSpotify", targets: ["OnlineRadioBoxToSpotify"])
