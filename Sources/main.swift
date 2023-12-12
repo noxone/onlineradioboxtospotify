@@ -4,7 +4,13 @@ import Logging
 let subsystem = "OnlineRadioBoxToSpotify"
 fileprivate let logger = Logger(label: "main")
 
-let input = Input(station: "radiohamburg", daysInPast: 5, playlist: "Radio Hamburg", playlistShallBePublic: true)
+let input = Input(
+    station: "radiohamburg",
+    daysInPast: 5,
+    playlist: "Radio Hamburg",
+    playlistShallBePublic: true,
+    trackIdsToIgnore: ["288254391476651696", "936772812185958052"]
+)
 
 main()
 

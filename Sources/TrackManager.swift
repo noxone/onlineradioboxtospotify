@@ -8,8 +8,14 @@
 import Foundation
 
 class TrackManager {
-    func generatePlaylist(fromNewInput tracks: [ORBPlaylistEntry]) -> [String] {
-        let listedTracks = Dictionary(grouping: tracks.filter { $0.time != nil }, by: {$0.href})
+    func generatePlaylist(fromNewInput tracks: [ORBPlaylistEntry], ignoring ignoreIds: [String]) -> [String] {
+        let hrefsToIgnore = ignoreIds.map { "/track/\($0)/" }
+        let listedTracks = Dictionary(
+            grouping: tracks
+                .filter { $0.time != nil }
+                .filter { !hrefsToIgnore.contains($0.href) },
+            by: {$0.href}
+        )
         
         let list =  listedTracks
             .map { (id: $0.key, time: $0.value.map { $0.time! }.max(), count: $0.value.count) }

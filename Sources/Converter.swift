@@ -30,7 +30,7 @@ class OnlineradioboxToSpotifyConverter {
         let orbPlaylist = try await loadPlaylistFromOnlineRadioBox(forStation: station, forTheLastDays: days)
         try await loadTrackDetailsFromOnlineRadioBox()
         try await matchSongsWithSpotify()
-        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic)
+        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic, ignoring: input.trackIdsToIgnore)
     }
     
     private func loadPlaylistFromOnlineRadioBox(forStation station: String, forTheLastDays days: Int) async throws -> [ORBPlaylistEntry] {
@@ -79,10 +79,10 @@ class OnlineradioboxToSpotifyConverter {
         logger.info("Persisted cache.")
     }
     
-    private func updateSpotifyPlaylist(withTracksFrom orbPlaylist: [ORBPlaylistEntry], playlistName: String, playlistIsPublic: Bool) async throws {
+    private func updateSpotifyPlaylist(withTracksFrom orbPlaylist: [ORBPlaylistEntry], playlistName: String, playlistIsPublic: Bool, ignoring ignoreIds: [String]) async throws {
         logger.info("---- Updating Spotify playlist ----")
         logger.info("Generating playlist content...")
-        let spotifyUris = await trackManager.generatePlaylist(fromNewInput: orbPlaylist)
+        let spotifyUris = await trackManager.generatePlaylist(fromNewInput: orbPlaylist, ignoring: ignoreIds)
             .compactMap { orb.extractId(fromHref: $0) }
             .asyncMap { await trackCache.getSpotifyUri(forId: $0) }
             .compactMap { $0 }
