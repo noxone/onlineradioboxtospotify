@@ -8,6 +8,7 @@
 import Foundation
 import SpotifyWebAPI
 import Combine
+import StringMetric
 import Logging
 
 fileprivate let logger = Logger(label: "spotify")
@@ -54,14 +55,6 @@ class Spotify {
         }
     }
     
-    
-    func convertToSpotify(_ tracks: [ORBTrack]) async throws -> [(id: String, track: Track)] {
-        return try await tracks
-            .asyncMap { try await (id: $0.id, track: searchSpotify(forTrack: $0)) }
-            .filter { $0.track != nil }
-            .map { (id: $0.id, track: $0.track!) }
-    }
-    
     func convertToSpotify(_ tracks: [SpotifyTrackRequest]) async throws -> [(id: String, track: Track)] {
         return try await tracks
             .concurrentMap { try await (id: $0.id, track: self.searchSpotify(forRequest: $0)) }
@@ -105,23 +98,28 @@ class Spotify {
         logger.info("Playlist: \(String(describing: playlist))")
     }
     
-    private func searchSpotify(forTrack track: ORBTrack) async throws -> Track? {
-        return try await searchSpotify(query: "\(track.artist) - \(track.title)")
-    }
-    
     private func searchSpotify(forRequest request: SpotifyTrackRequest) async throws -> Track? {
-        for text in request.texts {
-            let track = try await searchSpotify(query: text)
-            if let track {
-                return track
+        var texts = [String]()
+        texts.append(contentsOf: request.texts.map { $0.lowercased() })
+        if request.artist != nil || request.title != nil {
+            texts.append("\(request.artist ?? "") - \(request.title ?? "")".lowercased())
+        }
+        
+        for text in texts {
+            let tracks = try await searchSpotify(query: text)
+            let sortedTracks = tracks.map { (track: $0, description: "\($0.artists?.map { $0.name }.joined(separator: ", ") ?? "") - \($0.name)".lowercased()) }
+                .map { (track: $0.track, distance: text.distanceDamerauLevenshtein(between: $0.description)) }
+                .sorted(by: { (lhs,rhs) in lhs.distance < rhs.distance })
+            if let track = sortedTracks.first {
+                return track.track
             }
         }
-        return try await searchSpotify(query: "\(request.artist ?? "") - \(request.title ?? "")")
+        return nil
     }
     
-    private func searchSpotify(query: String) async throws -> Track? {
+    private func searchSpotify(query: String) async throws -> [Track] {
         let result = try await spotify.search(query: query, categories: [.track]).async()
-        return result.tracks?.items.first
+        return result.tracks?.items ?? []
     }
 }
 
