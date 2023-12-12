@@ -4,13 +4,12 @@ import Logging
 let subsystem = "OnlineRadioBoxToSpotify"
 fileprivate let logger = Logger(label: "main")
 
-let input = Input(station: "radiohamburg", daysInPast: 3, playlist: "bernd Brot 1233", playlistShallBePublic: false)
+let input = Input(station: "radiohamburg", daysInPast: 5, playlist: "Radio Hamburg", playlistShallBePublic: true)
 
 main()
 
 func main() {
     runAndWait {
-        // _ = await actualLogicToRun(with: input)
         do {
             let converter = try await OnlineradioboxToSpotifyConverter()
             try await converter.doDownloadAndConversion(for: input)
