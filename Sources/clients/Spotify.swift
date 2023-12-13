@@ -37,7 +37,8 @@ class Spotify {
     }
     
     func logInToSpotify() async throws {
-        if let url = URL(string: locationOfSecrets), let data = try? Data(contentsOf: url) {
+        let url = Files.url(forFilename: "credentials.txt")
+        if let data = try? Data(contentsOf: url) {
             let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
             spotify.authorizationManager = authorizationManager
             return
