@@ -86,6 +86,10 @@ class Spotify {
         let allPlaylists = try await spotify.userPlaylists(for: currentUser.uri).async()
         let playlist = allPlaylists.items.first(where: { $0.name == name })
         if let playlist {
+            if playlist.isPublic != isPublic {
+                let details = PlaylistDetails(isPublic: isPublic)
+                try await spotify.changePlaylistDetails(playlist.uri, to: details).async()
+            }
             return playlist.uri
         }
         let details = PlaylistDetails(name: name, isPublic: isPublic, isCollaborative: false)
@@ -108,7 +112,7 @@ class Spotify {
         for text in texts {
             let tracks = try await searchSpotify(query: text)
             let sortedTracks = tracks.map { (track: $0, description: "\($0.artists?.map { $0.name }.joined(separator: ", ") ?? "") - \($0.name)".lowercased()) }
-                .map { (track: $0.track, distance: text.distanceDamerauLevenshtein(between: $0.description)) }
+                .map { (track: $0.track, description: $0.description, distance: text.distanceDamerauLevenshtein(between: $0.description)) }
                 .sorted(by: { (lhs,rhs) in lhs.distance < rhs.distance })
             if let track = sortedTracks.first {
                 return track.track
@@ -118,7 +122,7 @@ class Spotify {
     }
     
     private func searchSpotify(query: String) async throws -> [Track] {
-        let result = try await spotify.search(query: query, categories: [.track]).async()
+        let result = try await spotify.search(query: query, categories: [.track], limit: 5).async()
         return result.tracks?.items ?? []
     }
 }
