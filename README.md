@@ -30,6 +30,8 @@ And then it should be good to run. The log-in procedure is currently a bit cumbe
 List of things that need to be done in this app (unordered):
 
 - Improve playlist update to not always replace everything, but just reorder/ add/ remove single songs
+- Add test
+- Add automation scripts to build stuff in Github actions
 - Split package into several packages for better reuse
 - Improve the log-in procedure
 - Switch from simple JSON cache to some DB
