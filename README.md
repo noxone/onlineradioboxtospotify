@@ -2,7 +2,7 @@
 
 If you love your local radio station and want to have a Spotify playlist with all your favorite songs currently playing on that station, you've found *the* right tool.
 
-The app is currently still under development, but if you know how to use it, it already works and can extract playlist information from (OnlineRadioBox)[https://onlineradiobox.com], then look it up on Spotify and finally create or update a playlist there.
+The app is currently still under development, but if you know how to use it, it already works and can extract playlist information from [OnlineRadioBox](https://onlineradiobox.com), then look it up on Spotify and finally create or update a playlist there.
 
 ## Goal
 
@@ -15,7 +15,7 @@ The app is developed using Swift. So, using a Mac with Xcode is probably the eas
 ### Steps to start local development
 
 - Clone the repository
-- Create an app in the (dashboard)[https://developer.spotify.com/dashboard] of you Spotify account
+- Create an app in the [dashboard](https://developer.spotify.com/dashboard) of you Spotify account
 - Double click the `Package.swift` to open the package in Xcode
 - In directory `Sources` create a file called `secrets.swift` and add two variables:
   ```swift
