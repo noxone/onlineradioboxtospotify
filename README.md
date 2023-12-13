@@ -34,6 +34,8 @@ List of things that need to be done in this app (unordered):
 - Add a lot of error handling
 - Add automation scripts to build stuff in Github actions
 - Split package into several packages for better reuse
+- Add more input possibilities (for RSS feeds, other tracking sites, etc...)
+- Add more output possibilities (Apple Music, ...)
 - Improve the log-in procedure
 - Switch from simple JSON cache to some DB
 - Create a UI for local running
