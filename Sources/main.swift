@@ -8,7 +8,7 @@ let input = Input(
     station: "radiohamburg",
     daysInPast: 5,
     playlist: "Radio Hamburg",
-    playlistShallBePublic: true,
+    playlistShallBePublic: false,
     trackIdsToIgnore: ["288254391476651696", "936772812185958052"]
 )
 

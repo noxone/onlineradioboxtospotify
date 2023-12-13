@@ -8,13 +8,14 @@
 import Foundation
 
 class TrackManager {
-    func generatePlaylist(fromNewInput tracks: [ORBPlaylistEntry], ignoring ignoreIds: [String]) -> [String] {
-        let hrefsToIgnore = ignoreIds.map { "/track/\($0)/" }
+    func generatePlaylist(fromNewInput trackList: [ORBTrack], ignoring idsToIgnore: [String]) -> [ORBTrack] {
+        let tracks = trackList.reduce(into: [String:ORBTrack]()) { $0[$1.id] = $1 }
+        
         let listedTracks = Dictionary(
-            grouping: tracks
+            grouping: trackList
                 .filter { $0.time != nil }
-                .filter { !hrefsToIgnore.contains($0.href) },
-            by: {$0.href}
+                .filter { !idsToIgnore.contains($0.id) },
+            by: {$0.id}
         )
         
         let list =  listedTracks
@@ -28,7 +29,7 @@ class TrackManager {
             .reversed()
         
         return list
-            .map { $0.id }
+            .compactMap { tracks[$0.id] }
     }
 }
 

@@ -35,11 +35,7 @@ class OnlineradioBox {
     
     init() {}
     
-    func extractId(from playlistEntry: ORBPlaylistEntry) -> String? {
-        return extractId(fromHref: playlistEntry.href)
-    }
-    
-    func extractId(fromHref href: String) -> String? {
+    private func extractId(fromHref href: String) -> String? {
         if let match = href.firstMatch(of: OnlineradioBox.regexForId) {
             let id = String(match.output.1).trimmingCharacters(in: .whitespacesAndNewlines)
             if !id.isEmpty {
@@ -49,71 +45,42 @@ class OnlineradioBox {
         return nil
     }
     
-    func loadTrackInformation(forStation station: String, forDay day: ORBDay) async throws -> [ORBTrack] {
-        try await loadTrackInformation(forStation: station, forTodayMinus: day.dayCount)
-    }
-    
-    func loadTrackInformation(forStation station: String, forTodayMinus todayMinus: Int = 1) async throws -> [ORBTrack] {
-        guard todayMinus >= 0 else { throw ORBTSError.numberOfDaysTooLow(number: todayMinus) }
-            
-        let rawPlaylistEntries = try await loadStationPlaylist(forStation: station, andAmountOfDays: todayMinus)
-        // FIXME: REMOVE NEXT LINE
-            .prefix(10)
-        let hrefs = Set(rawPlaylistEntries.map { $0.href })
-        let trackDictionary = try await hrefs
-            .concurrentMap { href in
-                let id = self.extractId(fromHref: href)!
-                let document = try await self.loadTrackPage(forHref: href)
-                let track = try self.extractTrackData(from: document, withId: id)
-                return (href: href, track: track)
-            }.reduce(into: [String:ORBTrack]()) { map, tuple in
-                map[tuple.href] = tuple.track
-            }
-        
-        let tracks = rawPlaylistEntries.compactMap { trackDictionary[$0.href] }
-        return tracks
-    }
-    
-    func loadTrackDetails(for tracks: [ORBPlaylistEntry]) async throws -> [ORBTrack] {
+    func loadTrackDetails(for tracks: [ORBTrack]) async throws -> [ORBTrack] {
         return try await tracks.concurrentMap { try await self.loadTrackDetails(for: $0) }
             .compactMap { $0 }
     }
     
-    private func loadTrackDetails(for track: ORBPlaylistEntry) async throws -> ORBTrack? {
-        guard let id = extractId(fromHref: track.href) else { return nil }
-        let page = try await loadTrackPage(forHref: track.href)
-        return try extractTrackData(from: page, withId: id)
+    private func loadTrackDetails(for track: ORBTrack) async throws -> ORBTrack? {
+        let page = try await loadTrackPage(forId: track.id)
+        return try extractTrackData(from: page, withId: track.id)
     }
     
-    func loadPlaylist(forStation station: String, forTheLastDays todayMinus: Int = 1) async throws -> [ORBPlaylistEntry] {
+    func loadPlaylist(forStation station: String, forTheLastDays todayMinus: Int = 1) async throws -> [ORBTrack] {
         guard todayMinus >= 0 else { throw ORBTSError.numberOfDaysTooLow(number: todayMinus) }
-        
         return try await loadStationPlaylist(forStation: station, andAmountOfDays: todayMinus)
     }
     
-    private func loadStationPlaylist(forStation station: String, andAmountOfDays days: Int) async throws -> [ORBPlaylistEntry] {
+    private func loadStationPlaylist(forStation station: String, andAmountOfDays days: Int) async throws -> [ORBTrack] {
         let documents = try await loadStationPages(forStation: station, andAmountOfDays: days)
         let rawPlaylistEntries = try await documents
-            .concurrentFlatMap { 
-                try self.extractRawPlaylistEntries(from: $0.document, forDate: $0.date)
-                    .filter { !$0.href.isEmpty }
-            }
+            .concurrentFlatMap { try self.extractRawPlaylistEntries(from: $0.document, forDate: $0.date) }
         return rawPlaylistEntries
     }
     
-    private func extractRawPlaylistEntries(from document: Document, forDate date: Date) throws -> [ORBPlaylistEntry] {
+    private func extractRawPlaylistEntries(from document: Document, forDate date: Date) throws -> [ORBTrack] {
         let lines = try document.select("table.tablelist-schedule tr")
-        return try lines.map { line in
-            let time = try line.select(".time--schedule").text()
-            let link = try line.select(".track_history_item > a")
-            let href = try link.attr("href")
-            let display = try link.text(trimAndNormaliseWhitespace: true)
-            var entryTime: Date? = nil
-            if let parsedTime = parse(time: time) {
-                entryTime = date.at(hour: parsedTime.hour, minute: parsedTime.minute)
-            }
-            return ORBPlaylistEntry(time: entryTime, display: display, href: href)
-        }
+        return try lines.compactMap { try extractRawPlaylistEntry(from: $0, forDate: date) }
+    }
+    
+    private func extractRawPlaylistEntry(from line: Element, forDate date: Date) throws -> ORBTrack? {
+        let time = try line.select(".time--schedule").text(trimAndNormaliseWhitespace: true)
+        let link = try line.select(".track_history_item > a")
+        let href = try link.attr("href")
+        guard let id = extractId(fromHref: href) else { return nil }
+        let display = try link.text(trimAndNormaliseWhitespace: true)
+        guard let parsedTime = parse(time: time) else { return nil }
+        let entryTime = date.at(hour: parsedTime.hour, minute: parsedTime.minute)
+        return ORBTrack(id: id, time: entryTime, display: display, title: nil, artist: nil)
     }
     
     private func parse(time: String) -> (hour: Int, minute: Int)? {
@@ -126,10 +93,10 @@ class OnlineradioBox {
         let artist = try document.select(".subject__info > a")
             .filter { try $0.attr("itemprop") == "byArtist" }
             .first?.text(trimAndNormaliseWhitespace: true) ?? ""
-        let album = try document.select(".subject__info > a")
-            .filter { try $0.attr("itemprop") == "byAlbum" }
-            .first?.text(trimAndNormaliseWhitespace: true)
-        return ORBTrack(id: id, title: title, artist: artist, albumName: album)
+//        let album = try document.select(".subject__info > a")
+//            .filter { try $0.attr("itemprop") == "byAlbum" }
+//            .first?.text(trimAndNormaliseWhitespace: true)
+        return ORBTrack(id: id, time: nil, display: nil, title: title, artist: artist)
     }
     
     private func loadStationPages(forStation station: String, andAmountOfDays days: Int) async throws -> [(date: Date, document: Document)] {
@@ -142,8 +109,8 @@ class OnlineradioBox {
         return try await (date: Date().minus(days: day), document: loadAndParsePage(for: url))
     }
     
-    private func loadTrackPage(forHref href: String) async throws -> Document {
-        let url = try createUrl(forHref: href)
+    private func loadTrackPage(forId id: String) async throws -> Document {
+        let url = try createUrl(forTrackId: id)
         return try await loadAndParsePage(for: url)
     }
     
@@ -153,9 +120,9 @@ class OnlineradioBox {
         return url
     }
     
-    private func createUrl(forHref href: String) throws -> URL {
-        let url = URL(string: "https://onlineradiobox.com\(href)")
-        guard let url else { throw ORBTSError.unableToBuildUrl(station: href) }
+    private func createUrl(forTrackId id: String) throws -> URL {
+        let url = URL(string: "https://onlineradiobox.com/track/\(id)/")
+        guard let url else { throw ORBTSError.unableToBuildUrl(station: id) }
         return url
     }
     
@@ -166,31 +133,10 @@ class OnlineradioBox {
     }
 }
 
-struct ORBPlaylistEntry {
-    let time: Date?
-    let display: String
-    let href: String
-}
-
 struct ORBTrack {
     let id: String
-    let title: String
-    let artist: String
-    let albumName: String?
-}
-
-enum ORBDay {
-    case dayInPast(dayCount: Int)
-    
-    static let today = ORBDay.dayInPast(dayCount: 0)
-    static let yesterday = ORBDay.dayInPast(dayCount: 1)
-    static let dayBeforeYesterday = ORBDay.dayInPast(dayCount: 2)
-    
-    var dayCount: Int {
-        if case let .dayInPast(dayCount) = self {
-            return dayCount
-        } else {
-            return 0
-        }
-    }
+    let time: Date?
+    let display: String?
+    let title: String?
+    let artist: String?
 }
