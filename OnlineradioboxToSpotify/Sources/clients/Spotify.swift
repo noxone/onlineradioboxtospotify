@@ -85,6 +85,7 @@ class Spotify {
         
         let patches = extendedPatch(from: existingItems, to: tracksToSet)
         var list = Array(existingItems)
+        logger.info("Working on \(patches.count) patches...")
         for patch in patches {
             switch patch {
             case .deletion(index: let index):
