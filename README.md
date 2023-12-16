@@ -29,7 +29,7 @@ And then it should be good to run. The log-in procedure is currently a bit cumbe
 
 List of things that need to be done in this app (unordered):
 
-- Improve playlist update to not always replace everything, but just reorder/ add/ remove single songs
+- Improve playlist update to not always replace everything, but just reorder/ add/ remove single songs :white_check_mark:
 - Add test
 - Add a lot of error handling
 - Add automation scripts to build stuff in Github actions

@@ -12,6 +12,7 @@ struct Input: Codable {
     let daysInPast: Int
     let playlist: String
     let playlistShallBePublic: Bool
+    let maxPlaylistItems: Int
     let trackIdsToIgnore: [String]
 }
 

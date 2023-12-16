@@ -18,6 +18,7 @@ let package = Package(
         .package(url: "https://github.com/Peter-Schorn/SpotifyAPI.git", .upToNextMajor(from: "2.2.4")),
         .package(url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git", .upToNextMajor(from: "0.2.0")),
         .package(url: "https://github.com/autozimu/StringMetric.swift.git", exact: "0.3.2"),
+        .package(url: "https://github.com/tonyarnold/Differ.git", .upToNextMajor(from: "1.4.6")),
     ],
     targets: [
         .executableTarget(
@@ -28,7 +29,8 @@ let package = Package(
                 .product(name: "SwiftSoup", package: "SwiftSoup"),
                 .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
                 .product(name: "SpotifyAPI", package: "SpotifyAPI"),
-                .product(name: "StringMetric", package: "StringMetric.swift")
+                .product(name: "StringMetric", package: "StringMetric.swift"),
+                .product(name: "Differ", package: "Differ")
             ]
         ),
         // Targets are the basic building blocks of a package, defining a module or a test suite.

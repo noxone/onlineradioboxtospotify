@@ -10,6 +10,7 @@ import SpotifyWebAPI
 import Combine
 import StringMetric
 import Logging
+import Differ
 
 fileprivate let logger = Logger(label: "spotify")
 
@@ -66,13 +67,37 @@ class Spotify {
     func updatePlaylist(uri playlistUri: String, with tracks: [Track]) async throws {
         try await updatePlaylist(uri: playlistUri, withUris: tracks.compactMap { $0.uri })
     }
-
-    func updatePlaylist(uri playlistUri: String, withUris tracks: [String]) async throws {
-        _ = try await spotify.replaceAllPlaylistItems(playlistUri, with: [] ).async()
-        try await tracks.chunked(size: 100)
-            .asyncForEach {
-                _ = try await spotify.addToPlaylist(playlistUri, uris: $0).async()
+    
+    private func getPlaylistTrackUris(for playlistUri: String, offset: Int = 0) async throws -> [String] {
+        let items = try await spotify.playlistItems(playlistUri, offset: offset).async()
+            .items
+            .compactMap { $0.item?.uri }
+        if items.isEmpty {
+            return []
+        }
+        
+        let next = try await getPlaylistTrackUris(for: playlistUri, offset: offset + items.count)
+        return items + next
+    }
+    
+    func updatePlaylist(uri playlistUri: String, withUris tracksToSet: [String]) async throws {
+        let existingItems = try await getPlaylistTrackUris(for: playlistUri)
+        
+        let patches = extendedPatch(from: existingItems, to: tracksToSet)
+        var list = Array(existingItems)
+        for patch in patches {
+            switch patch {
+            case .deletion(index: let index):
+                let item = list.remove(at: index)
+                _ = try await spotify.removeSpecificOccurrencesFromPlaylist(playlistUri, of: URIsWithPositionsContainer(urisWithPositions: [URIWithPositions(uri: item, positions: [index])])).async()
+            case .insertion(index: let index, element: let element):
+                list.insert(element, at: index)
+                _ = try await spotify.addToPlaylist(playlistUri, uris: [element], position: index).async()
+            case .move(from: let oldIndex, to: let newIndex):
+                list.move(fromOffsets: IndexSet([oldIndex]), toOffset: newIndex + (newIndex > oldIndex ? 1 : 0))
+                _ = try await spotify.reorderPlaylistItems(playlistUri, body: ReorderPlaylistItems(rangeStart: oldIndex, insertBefore: newIndex + (newIndex > oldIndex ? 1 : 0))).async()
             }
+        }
     }
 
     private func getPlaylist(withName name: String) async throws -> Playlist<PlaylistItemsReference>? {

@@ -30,7 +30,7 @@ class OnlineradioboxToSpotifyConverter {
         let orbPlaylist = try await loadPlaylistFromOnlineRadioBox(forStation: station, forTheLastDays: days)
         try await loadTrackDetailsFromOnlineRadioBox()
         try await matchSongsWithSpotify()
-        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic, ignoring: input.trackIdsToIgnore)
+        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic, maxPlaylistItems: input.maxPlaylistItems, ignoring: input.trackIdsToIgnore)
     }
     
     private func loadPlaylistFromOnlineRadioBox(forStation station: String, forTheLastDays days: Int) async throws -> [ORBTrack] {
@@ -77,15 +77,17 @@ class OnlineradioboxToSpotifyConverter {
         logger.info("Persisted cache.")
     }
     
-    private func updateSpotifyPlaylist(withTracksFrom orbPlaylist: [ORBTrack], playlistName: String, playlistIsPublic: Bool, ignoring ignoreIds: [String]) async throws {
+    private func updateSpotifyPlaylist(withTracksFrom orbPlaylist: [ORBTrack], playlistName: String, playlistIsPublic: Bool, maxPlaylistItems: Int, ignoring ignoreIds: [String]) async throws {
         logger.info("---- Updating Spotify playlist ----")
         logger.info("Generating playlist content...")
-        let spotifyUris = await trackManager.generatePlaylist(fromNewInput: orbPlaylist, ignoring: ignoreIds)
+        let tracklist = trackManager.generatePlaylist(fromNewInput: orbPlaylist, ignoring: ignoreIds)
+        let spotifyUris = await tracklist
             .asyncMap { await trackCache.getSpotifyUri(forId: $0.id) }
             .compactMap { $0 }
+            .prefix(maxPlaylistItems > 0 ? maxPlaylistItems : Int.max)
         logger.info("Creating or fetching playlist")
         let playlist = try await spotify.getOrCreate(playlist: playlistName, isPublic: playlistIsPublic)
         logger.info("Updating playlist with \(spotifyUris.count) entries.")
-        try await spotify.updatePlaylist(uri: playlist.uri, withUris: spotifyUris)
+        try await spotify.updatePlaylist(uri: playlist.uri, withUris: Array(spotifyUris))
     }
 }
