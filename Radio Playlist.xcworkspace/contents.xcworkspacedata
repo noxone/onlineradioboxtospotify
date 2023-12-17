@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:RadioPlaylistUI/RadioPlaylistUI.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:OnlineradioboxToSpotify">
    </FileRef>
 </Workspace>
