@@ -18,7 +18,7 @@ main()
 func main() {
     runAndWait {
         do {
-            let converter = try await OnlineradioboxToSpotifyConverter()
+            let converter = try await OnlineradioboxToSpotifyConverter(spotify: Spotify())
             try await converter.doDownloadAndConversion(for: input)
         } catch {
             logger.error("Error loading data: \(error.localizedDescription)")

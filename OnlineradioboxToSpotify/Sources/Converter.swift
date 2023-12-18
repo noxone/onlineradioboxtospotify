@@ -10,13 +10,14 @@ import Logging
 
 fileprivate let logger = Logger(label: "Converter")
 
-class OnlineradioboxToSpotifyConverter {
+public class OnlineradioboxToSpotifyConverter {
     private let trackCache = TrackCache.shared
     private let orb = OnlineradioBox()
     private let trackManager = TrackManager()
-    private let spotify = Spotify()
+    private let spotify: Spotify
     
-    init() async throws {
+    init(spotify: Spotify) async throws {
+        self.spotify = spotify
         try await spotify.logInToSpotify()
     }
     

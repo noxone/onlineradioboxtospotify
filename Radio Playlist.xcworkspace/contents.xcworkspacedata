@@ -5,6 +5,9 @@
       location = "group:RadioPlaylistUI/RadioPlaylistUI.xcodeproj">
    </FileRef>
    <FileRef
+      location = "group:RadioPlaylistCLI">
+   </FileRef>
+   <FileRef
       location = "group:OnlineradioboxToSpotify">
    </FileRef>
 </Workspace>
