@@ -13,15 +13,18 @@ let input = Input(
     trackIdsToIgnore: ["288254391476651696", "936772812185958052"]
 )
 
-main()
+print ("Text")
 
-func main() {
-    runAndWait {
-        do {
-            let converter = try await OnlineradioboxToSpotifyConverter(spotify: Spotify())
-            try await converter.doDownloadAndConversion(for: input)
-        } catch {
-            logger.error("Error loading data: \(error.localizedDescription)")
-        }
-    }
-}
+
+//main()
+//
+//func main() {
+//    runAndWait {
+//        do {
+//            let converter = try await OnlineradioboxToSpotifyConverter(spotify: Spotify())
+//            try await converter.doDownloadAndConversion(for: input)
+//        } catch {
+//            logger.error("Error loading data: \(error.localizedDescription)")
+//        }
+//    }
+//}

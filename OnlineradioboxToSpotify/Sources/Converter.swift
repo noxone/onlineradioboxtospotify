@@ -7,6 +7,7 @@
 
 import Foundation
 import Logging
+import SpotifyWebAPI
 
 fileprivate let logger = Logger(label: "Converter")
 
@@ -16,12 +17,11 @@ public class OnlineradioboxToSpotifyConverter {
     private let trackManager = TrackManager()
     private let spotify: Spotify
     
-    init(spotify: Spotify) async throws {
-        self.spotify = spotify
-        try await spotify.logInToSpotify()
+    public init(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
+        self.spotify = Spotify(spotifyApi: spotifyApi)
     }
     
-    func doDownloadAndConversion(for input: Input) async throws {
+    public func doDownloadAndConversion(for input: Input) async throws {
         try await doDownloadAndConversion(forStation: input.station, forTheLastDays: input.daysInPast, andUploadToSpotifyPlaylist: input.playlist, thatShallBePublic: input.playlistShallBePublic)
     }
     

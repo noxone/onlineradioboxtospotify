@@ -13,55 +13,74 @@ import Logging
 fileprivate let logger = Logger(label: "SpotifyBuilder")
 
 class SpotifyBuilder {
+    private var clientId: String
+    private var clientSecret: String
+    private var credentialsFileUrl: URL
+    private var spotifyRedirectUriForLogin: URL?
+    private var spotifyRedirectedUriAfterLogin: URL?
+    
     private var cancellables: Set<AnyCancellable> = []
     
-    
-    func createSpotifyApi(clientId: String, clientSecret: String, crdentialsFilename: String) -> SpotifyAPI<AuthorizationCodeFlowManager> {
-        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: clientId, clientSecret: clientSecret))
-        spotifyApi.authorizationManagerDidChange
-            .sink(receiveValue: authorizationManagerDidChange)
-            .store(in: &cancellables)
-     
-        let authorizationUrl = logIn(spotifyApi: spotifyApi)
+    init(clientId: String, clientSecret: String, credentialsFilename: String, spotifyRedirectUriForLogin: URL?, spotifyRedirectedUriAfterLogin: URL?) {
+        self.clientId = clientId
+        self.clientSecret = clientSecret
+        self.credentialsFileUrl = URL(string: credentialsFilename)!
+        self.spotifyRedirectUriForLogin = spotifyRedirectUriForLogin
+        self.spotifyRedirectedUriAfterLogin = spotifyRedirectedUriAfterLogin
     }
     
-    private func authorizationManagerDidChange() {
+    func createSpotifyApi() async throws -> (spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>?, redirectUri: URL?) {
+        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: clientId, clientSecret: clientSecret))
+        spotifyApi.authorizationManagerDidChange
+            .sink(receiveValue: { self.authorizationManagerDidChange(for: spotifyApi) })
+            .store(in: &cancellables)
+     
+        let authorizationUrl = try await logIn(spotifyApi: spotifyApi)
+        if let authorizationUrl {
+            return (spotifyApi: nil, redirectUri: authorizationUrl)
+        } else {
+            return (spotifyApi: spotifyApi, redirectUri: nil)
+        }
+    }
+    
+    private func authorizationManagerDidChange(for spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
         do {
-            let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
-            let url = Files.url(forFilename: "credentials.txt")
-            try authManagerData.write(to: url)
+            let authManagerData = try JSONEncoder().encode(spotifyApi.authorizationManager)
+            try authManagerData.write(to: credentialsFileUrl)
         } catch {
             logger.error("Unable to store credentials: \(error.localizedDescription)")
         }
     }
     
-    private func logIn(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>, redirectUrl: URL) -> URL? {
+    private func logIn(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) async throws -> URL? {
         if let authorizationManager = readAuthorizationManagerFromFile() {
             spotifyApi.authorizationManager = authorizationManager
             logger.info("Set authorization manager to preloaded manager.")
             return nil
         }
         
-        if let spotifyRedirectUri {
+        if let spotifyRedirectedUriAfterLogin {
+            try await authorize(spotifyApi: spotifyApi, usingRedirectUri: spotifyRedirectedUriAfterLogin.absoluteString)
             return nil
+        } else if let spotifyRedirectUriForLogin {
+            let url = spotifyApi.authorizationManager.makeAuthorizationURL(redirectURI: spotifyRedirectUriForLogin, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
+            return url
         } else {
-            let url = spotifyApi.authorizationManager.makeAuthorizationURL(redirectURI: redirectUrl, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
-            return 
+            throw SpotifyBuilderError.noRedirectUriGiven
         }
     }
     
-    private func createAutorizationManager(for spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>, fromRedirectUri uri: String) async -> AuthorizationCodeFlowManager? {
+    private func authorize(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>, usingRedirectUri uri: String) async throws {
         do {
-            await spotifyApi.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: uri)!).async()
-            return true
+            try await spotifyApi.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: uri)!).async()
         } catch {
-            
+            logger.error("Unable to authorize Spotify API")
+            throw SpotifyBuilderError.unableToAuthorizeSpotifyApi(reason: error)
         }
-        return nil
     }
     
     private func readAuthorizationManagerFromFile() -> AuthorizationCodeFlowManager? {
-        guard let data = getContentOfCredentialsFile(withName: credentialsFilename) else {
+        guard let data = getContentOfCredentialsFile() else {
             return nil
         }
         
@@ -74,17 +93,17 @@ class SpotifyBuilder {
         }
     }
     
-    private func getContentOfCredentialsFile(withName filename: String) -> Data? {
-        let urlString = "file://\(filename)"
-        guard let url = URL(string: urlString) else {
-            logger.warning("Unable to construct URL from: \(urlString)")
-            return nil
-        }
+    private func getContentOfCredentialsFile() -> Data? {
         do {
-            return try Data(contentsOf: url)
+            return try Data(contentsOf: credentialsFileUrl)
         } catch {
             logger.warning("Unable to read contents of file: \(error.localizedDescription)")
             return nil
         }
     }
+}
+
+enum SpotifyBuilderError: LocalizedError {
+    case unableToAuthorizeSpotifyApi(reason: Error)
+    case noRedirectUriGiven
 }

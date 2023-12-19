@@ -17,45 +17,46 @@ fileprivate let logger = Logger(label: "spotify")
 class Spotify {
     
     //fileprivate let spotify = SpotifyAPI(authorizationManager: ClientCredentialsFlowManager(clientId: spotifyClientId, clientSecret: spotifyClientSecret))
-    private let spotify: SpotifyAPI<AuthorizationCodeFlowManager>
+    private let spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>
     private var cancellables: Set<AnyCancellable> = []
     
-    init() {
-        spotify = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: spotifyClientId, clientSecret: spotifyClientSecret))
-        spotify.authorizationManagerDidChange
-            .sink(receiveValue: authorizationManagerDidChange)
-            .store(in: &cancellables)
+    init(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
+        self.spotifyApi = spotifyApi
+//        spotify = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: spotifyClientId, clientSecret: spotifyClientSecret))
+//        spotify.authorizationManagerDidChange
+//            .sink(receiveValue: authorizationManagerDidChange)
+//            .store(in: &cancellables)
     }
     
-    private func authorizationManagerDidChange() {
-        do {
-            let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
-            let url = Files.url(forFilename: "credentials.txt")
-            try authManagerData.write(to: url)
-        } catch {
-            logger.error("Unable to store credentials: \(error.localizedDescription)")
-        }
-    }
-    
-    func logInToSpotify() async throws {
-        let url = Files.url(forFilename: "credentials.txt")
-        if let data = try? Data(contentsOf: url) {
-            let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
-            spotify.authorizationManager = authorizationManager
-            return
-        }
-        
-        let redirectUrl: String? = nil // ""
-
-        if let redirectUrl {
-            try await spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: redirectUrl)!).async()
-        } else {
-            let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: "http://localhost:7000")!, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
-            guard let url else { fatalError("No URL created.") }
-            logger.info("\(url)")
-            fatalError()
-        }
-    }
+//    private func authorizationManagerDidChange() {
+//        do {
+//            let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
+//            let url = Files.url(forFilename: "credentials.txt")
+//            try authManagerData.write(to: url)
+//        } catch {
+//            logger.error("Unable to store credentials: \(error.localizedDescription)")
+//        }
+//    }
+//    
+//    func logInToSpotify() async throws {
+//        let url = Files.url(forFilename: "credentials.txt")
+//        if let data = try? Data(contentsOf: url) {
+//            let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
+//            spotify.authorizationManager = authorizationManager
+//            return
+//        }
+//        
+//        let redirectUrl: String? = nil // ""
+//
+//        if let redirectUrl {
+//            try await spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: redirectUrl)!).async()
+//        } else {
+//            let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: "http://localhost:7000")!, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
+//            guard let url else { fatalError("No URL created.") }
+//            logger.info("\(url)")
+//            fatalError()
+//        }
+//    }
     
     func convertToSpotify(_ tracks: [SpotifyTrackRequest]) async throws -> [(id: String, track: Track)] {
         return try await tracks
@@ -69,7 +70,7 @@ class Spotify {
     }
     
     private func getPlaylistTrackUris(for playlistUri: String, offset: Int = 0) async throws -> [String] {
-        let items = try await spotify.playlistItems(playlistUri, offset: offset).async()
+        let items = try await spotifyApi.playlistItems(playlistUri, offset: offset).async()
             .items
             .compactMap { $0.item?.uri }
         if items.isEmpty {
@@ -94,15 +95,15 @@ class Spotify {
             switch patch {
             case .deletion(index: let index):
                 let item = list.remove(at: index)
-                _ = try await spotify.removeSpecificOccurrencesFromPlaylist(playlistUri, of: URIsWithPositionsContainer(urisWithPositions: [URIWithPositions(uri: item, positions: [index])])).async()
+                _ = try await spotifyApi.removeSpecificOccurrencesFromPlaylist(playlistUri, of: URIsWithPositionsContainer(urisWithPositions: [URIWithPositions(uri: item, positions: [index])])).async()
                 deletions += 1
             case .insertion(index: let index, element: let element):
                 list.insert(element, at: index)
-                _ = try await spotify.addToPlaylist(playlistUri, uris: [element], position: index).async()
+                _ = try await spotifyApi.addToPlaylist(playlistUri, uris: [element], position: index).async()
                 insertions += 1
             case .move(from: let oldIndex, to: let newIndex):
                 list.move(fromOffsets: IndexSet([oldIndex]), toOffset: newIndex + (newIndex > oldIndex ? 1 : 0))
-                _ = try await spotify.reorderPlaylistItems(playlistUri, body: ReorderPlaylistItems(rangeStart: oldIndex, insertBefore: newIndex + (newIndex > oldIndex ? 1 : 0))).async()
+                _ = try await spotifyApi.reorderPlaylistItems(playlistUri, body: ReorderPlaylistItems(rangeStart: oldIndex, insertBefore: newIndex + (newIndex > oldIndex ? 1 : 0))).async()
                 moves += 1
             }
         }
@@ -110,30 +111,30 @@ class Spotify {
     }
 
     private func getPlaylist(withName name: String) async throws -> Playlist<PlaylistItemsReference>? {
-        return try await spotify.currentUserPlaylists().async()
+        return try await spotifyApi.currentUserPlaylists().async()
             .items
             .filter { $0.name == name }
             .first
     }
     
     func getOrCreate(playlist name: String, isPublic: Bool) async throws -> String {
-        let currentUser = try await spotify.currentUserProfile().async()
-        let allPlaylists = try await spotify.userPlaylists(for: currentUser.uri).async()
+        let currentUser = try await spotifyApi.currentUserProfile().async()
+        let allPlaylists = try await spotifyApi.userPlaylists(for: currentUser.uri).async()
         let playlist = allPlaylists.items.first(where: { $0.name == name })
         if let playlist {
             if playlist.isPublic != isPublic {
                 let details = PlaylistDetails(isPublic: isPublic)
-                try await spotify.changePlaylistDetails(playlist.uri, to: details).async()
+                try await spotifyApi.changePlaylistDetails(playlist.uri, to: details).async()
             }
             return playlist.uri
         }
         let details = PlaylistDetails(name: name, isPublic: isPublic, isCollaborative: false)
-        let response = try await spotify.createPlaylist(for: currentUser.uri, details).async()
+        let response = try await spotifyApi.createPlaylist(for: currentUser.uri, details).async()
         return response.uri
     }
     
     private func createPlaylist(from tracks: [Track]) async throws {
-        let playlist = try await spotify.playlist("Radio/Radio Hamburg").async()
+        let playlist = try await spotifyApi.playlist("Radio/Radio Hamburg").async()
         logger.info("Playlist: \(String(describing: playlist))")
     }
     
@@ -157,7 +158,7 @@ class Spotify {
     }
     
     private func searchSpotify(query: String) async throws -> [Track] {
-        let result = try await spotify.search(query: query, categories: [.track], limit: 5).async()
+        let result = try await spotifyApi.search(query: query, categories: [.track], limit: 5).async()
         return result.tracks?.items ?? []
     }
 }
