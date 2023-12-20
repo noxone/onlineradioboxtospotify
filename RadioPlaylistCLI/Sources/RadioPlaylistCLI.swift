@@ -12,7 +12,7 @@ import RadioPlaylistLib
 fileprivate let logger = Logger(label: "RadioPlaylistCLI")
 
 @main
-struct RadioPlaylistCLI: AsyncParsableCommand {
+struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
     @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
     var credentialsFilePath: URL = URL(filePath: "spotify.credentials", directoryHint: .notDirectory)
     @Option(name: [.long, .customShort("t")], help: "The file location of the track cache.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
@@ -22,12 +22,12 @@ struct RadioPlaylistCLI: AsyncParsableCommand {
     var spotifyRedirectUriForLogin: URL?
     @Option(help: "The URL Spotify redirected you to after authorizing the app.", transform: {URL(string: $0)})
     var spotifyRedirectUriAfterLogin: URL?
-
-    @Option(name: .customLong("client-id"), help: "The Client-ID for your Spotify app") 
+    
+    @Option(name: .customLong("client-id"), help: "The Client-ID for your Spotify app")
     var spotifyClientId: String?
     @Option(name: .customLong("client-secret"), help: "The Client-Secret for your Spotify app")
     var spotifyClientSecret: String?
-
+    
     @Option(name: .shortAndLong, help: "The ID of the radio station for analyze")
     var radioStation: String
     @Option(name: .shortAndLong, help: "Number of days to look in the past for tracks")
@@ -38,11 +38,11 @@ struct RadioPlaylistCLI: AsyncParsableCommand {
     var publicPlaylist: Bool = false
     
     
-//
-//    @Option var ignoreTrackIds: [String] = []
-
+    //
+    //    @Option var ignoreTrackIds: [String] = []
+    
     @Flag(name: .long, help: "If actived the CLI will read all sensitive information from STD-IN instead using parameters.") var readFromStdIn: Bool = false
-
+    
     mutating func validate() throws {
         if readFromStdIn {
             try readInputFromStdIn()
@@ -70,11 +70,9 @@ struct RadioPlaylistCLI: AsyncParsableCommand {
     
     mutating func run() async throws {
         let builder = SpotifyBuilder(
-            clientId: spotifyClientId ?? "",
-            clientSecret: spotifyClientSecret ?? "",
+            inputProvider: self,
             credentialsFilePath: credentialsFilePath,
-            spotifyRedirectUriForLogin: URL(string: "http://localhost:7000"),//spotifyRedirectUriForLogin,
-            spotifyRedirectedUriAfterLogin: spotifyRedirectUriAfterLogin
+            spotifyRedirectUriForLogin: URL(string: "http://localhost:7000")//spotifyRedirectUriForLogin
         )
         let authResult = try await builder.createSpotifyApi()
         
@@ -96,10 +94,40 @@ struct RadioPlaylistCLI: AsyncParsableCommand {
             try await converter.doDownloadAndConversion(for: input)
         }
     }
+    
+    private func getStdInData(forQuestion prompt: String) -> String {
+        print(prompt)
+        return readLine(strippingNewline: true) ?? ""
+    }
+    
+    func getSpotifyClientId() -> String {
+        return spotifyClientId ?? getStdInData(forQuestion: "Enter Spotify Client ID:")
+    }
+    
+    func getSpotifyClientSecret() -> String {
+        return spotifyClientSecret ?? getStdInData(forQuestion: "Enter Spotify Client Secret:")
+    }
+    
+    func getSpotifyRedirectUri(for redirectUri: URL) throws -> URL? {
+        if spotifyRedirectUriForLogin == nil {
+            throw CleanExit.message("Spotify needs your action to authorize the use of this app.\nPlease visit: \(redirectUri)\n\nAfter that start this tool again and give the redirected URL as parameter '--spotify-redirect-uri-after-login'")
+        }
+        
+        if let spotifyRedirectUriAfterLogin {
+            return spotifyRedirectUriAfterLogin
+        }
+        
+        let urlString = getStdInData(forQuestion: "Enter Spotify redirect URI:")
+        if let url = URL(string: urlString) {
+            return url
+        }
+        
+        throw ExitCode(3)
+    }
 }
 
 protocol InputProvider {
-    var spotifyClientId: String { get }
-    var spotifyClientSecret: String { get }
-    var spotifyRedirectUri: String { get }
+    func getSpotifyClientId() -> String
+    func getSpotifyClientSecret() -> String
+    func getSpotifyRedirectUri() throws -> URL?
 }

@@ -13,29 +13,37 @@ import Logging
 fileprivate let logger = Logger(label: "SpotifyBuilder")
 
 class SpotifyBuilder {
-    private var clientId: String
-    private var clientSecret: String
+    private let inputProvider: InputProvider
     private var credentialsFileUrl: URL
     private var spotifyRedirectUriForLogin: URL?
-    private var spotifyRedirectedUriAfterLogin: URL?
     
     private var cancellables: Set<AnyCancellable> = []
     
-    init(clientId: String, clientSecret: String, credentialsFilePath: URL, spotifyRedirectUriForLogin: URL?, spotifyRedirectedUriAfterLogin: URL?) {
-        self.clientId = clientId
-        self.clientSecret = clientSecret
+    init(inputProvider: InputProvider, credentialsFilePath: URL, spotifyRedirectUriForLogin: URL?) {
+        self.inputProvider = inputProvider
         self.credentialsFileUrl = credentialsFilePath
         self.spotifyRedirectUriForLogin = spotifyRedirectUriForLogin
-        self.spotifyRedirectedUriAfterLogin = spotifyRedirectedUriAfterLogin
     }
     
-    func createSpotifyApi() async throws -> (spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>?, redirectUri: URL?) {
-        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: clientId, clientSecret: clientSecret))
+    private func createBasicSpotifyApi(clientId: String, clientSecret: String) -> SpotifyAPI<AuthorizationCodeFlowManager> {
+        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: inputProvider.getSpotifyClientId(), clientSecret: inputProvider.getSpotifyClientSecret()))
         spotifyApi.authorizationManagerDidChange
             .sink(receiveValue: { self.authorizationManagerDidChange(for: spotifyApi) })
             .store(in: &cancellables)
-     
+        return spotifyApi
+    }
+    
+    func createSpotifyApi() async throws -> SpotifyAPI<AuthorizationCodeFlowManager> {
+        if let authorizationManager = readAuthorizationManagerFromFile() {
+            var spotifyApi = createBasicSpotifyApi(clientId: "", clientSecret: "")
+            logger.info("Set authorization manager to preloaded manager.")
+            spotifyApi.authorizationManager = authorizationManager
+            return spotifyApi
+        }
+        
+        let spotifyApi = createBasicSpotifyApi(clientId: inputProvider.getSpotifyClientId(), clientSecret: inputProvider.getSpotifyClientSecret())
         let authorizationUrl = try await logIn(spotifyApi: spotifyApi)
+        
         if let authorizationUrl {
             return (spotifyApi: nil, redirectUri: authorizationUrl)
         } else {
@@ -54,13 +62,7 @@ class SpotifyBuilder {
     }
     
     private func logIn(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) async throws -> URL? {
-        if let authorizationManager = readAuthorizationManagerFromFile() {
-            spotifyApi.authorizationManager = authorizationManager
-            logger.info("Set authorization manager to preloaded manager.")
-            return nil
-        }
-        
-        if let spotifyRedirectedUriAfterLogin {
+        if let spotifyRedirectedUriAfterLogin = try inputProvider.getSpotifyRedirectUri() {
             try await authorize(spotifyApi: spotifyApi, usingRedirectUri: spotifyRedirectedUriAfterLogin.absoluteString)
             return nil
         } else if let spotifyRedirectUriForLogin {
