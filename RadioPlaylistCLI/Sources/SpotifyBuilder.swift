@@ -21,10 +21,10 @@ class SpotifyBuilder {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    init(clientId: String, clientSecret: String, credentialsFilename: String, spotifyRedirectUriForLogin: URL?, spotifyRedirectedUriAfterLogin: URL?) {
+    init(clientId: String, clientSecret: String, credentialsFilePath: URL, spotifyRedirectUriForLogin: URL?, spotifyRedirectedUriAfterLogin: URL?) {
         self.clientId = clientId
         self.clientSecret = clientSecret
-        self.credentialsFileUrl = URL(string: credentialsFilename)!
+        self.credentialsFileUrl = credentialsFilePath
         self.spotifyRedirectUriForLogin = spotifyRedirectUriForLogin
         self.spotifyRedirectedUriAfterLogin = spotifyRedirectedUriAfterLogin
     }
@@ -45,6 +45,7 @@ class SpotifyBuilder {
     
     private func authorizationManagerDidChange(for spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
         do {
+            logger.info("Storing changed credentials in \(credentialsFileUrl.absoluteString)")
             let authManagerData = try JSONEncoder().encode(spotifyApi.authorizationManager)
             try authManagerData.write(to: credentialsFileUrl)
         } catch {

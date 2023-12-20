@@ -1,14 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Olaf Neumann on 29.11.23.
 //
 
 import Foundation
-import os.log
+import Logging
 
-fileprivate let logger = Logger(subsystem: subsystem, category: "http")
+fileprivate let logger = Logger(label: "http")
 
 class Http {
     private let urlSession = URLSession(configuration: {
@@ -17,7 +17,7 @@ class Http {
         sessionConfig.timeoutIntervalForResource = 60.0
         return sessionConfig
     }())
-
+    
     func downloadString(from url: URL) async throws -> String {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -33,7 +33,7 @@ class Http {
             throw ORBTSError.downloadFailed
         }
     }
-
+    
     deinit {
         urlSession.invalidateAndCancel()
     }

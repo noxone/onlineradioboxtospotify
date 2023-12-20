@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Olaf Neumann on 11.12.23.
 //
@@ -14,10 +14,8 @@ actor TrackCache {
     typealias ID = String
     typealias Cache = [ID:CacheEntry]
     
-    private static let cacheLocation = Files.url(forFilename: "trackcache.json")
-
-    private static func loadOrCreateCache() -> Cache {
-        if let data = try? Data(contentsOf: TrackCache.cacheLocation),
+    private static func loadOrCreateCache(fromUrl cacheLocation: URL) -> Cache {
+        if let data = try? Data(contentsOf: cacheLocation),
            let cache = try? JSONDecoder().decode(Cache.self, from: data) {
             return cache
         }
@@ -25,18 +23,17 @@ actor TrackCache {
         return Cache()
     }
     
-    static let shared = TrackCache(withCache: loadOrCreateCache())
-    
-    
+    private let cacheLocation: URL
     private var cache: Cache
     
-    private init(withCache cache: Cache) {
-        self.cache = cache
+    init(withLocation cacheLocation: URL) {
+        self.cacheLocation = cacheLocation
+        self.cache = TrackCache.loadOrCreateCache(fromUrl: cacheLocation)
     }
     
     func storeCache() throws {
         let data = try JSONEncoder().encode(cache)
-        try data.write(to: TrackCache.cacheLocation)
+        try data.write(to: cacheLocation)
     }
     
     var count: Int {

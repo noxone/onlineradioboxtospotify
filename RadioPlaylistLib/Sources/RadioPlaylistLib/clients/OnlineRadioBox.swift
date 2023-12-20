@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Olaf Neumann on 29.11.23.
 //
@@ -93,9 +93,9 @@ class OnlineradioBox {
         let artist = try document.select(".subject__info > a")
             .filter { try $0.attr("itemprop") == "byArtist" }
             .first?.text(trimAndNormaliseWhitespace: true) ?? ""
-//        let album = try document.select(".subject__info > a")
-//            .filter { try $0.attr("itemprop") == "byAlbum" }
-//            .first?.text(trimAndNormaliseWhitespace: true)
+        //        let album = try document.select(".subject__info > a")
+        //            .filter { try $0.attr("itemprop") == "byAlbum" }
+        //            .first?.text(trimAndNormaliseWhitespace: true)
         return ORBTrack(id: id, time: nil, display: nil, title: title, artist: artist)
     }
     

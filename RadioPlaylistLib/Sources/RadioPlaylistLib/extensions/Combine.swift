@@ -2,10 +2,9 @@
 //  File.swift
 //  
 //
-//  Created by Olaf Neumann on 29.11.23.
+//  Created by Olaf Neumann on 20.12.23.
 //
 
-import Foundation
 import Combine
 
 // https://medium.com/geekculture/from-combine-to-async-await-c08bf1d15b77
@@ -28,16 +27,4 @@ public extension AnyPublisher {
                 }
         }
     }
-}
-
-func runAndWait(_ code: @escaping () async -> Void) {
-    let group = DispatchGroup()
-    group.enter()
-    
-    Task {
-        await code()
-        group.leave()
-    }
-    
-    group.wait()
 }

@@ -8,6 +8,6 @@
       location = "group:RadioPlaylistCLI">
    </FileRef>
    <FileRef
-      location = "group:OnlineradioboxToSpotify">
+      location = "group:RadioPlaylistLib">
    </FileRef>
 </Workspace>

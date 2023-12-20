@@ -7,74 +7,99 @@
 import Foundation
 import Logging
 import ArgumentParser
-import SpotifyWebAPI
-import OnlineRadioBoxToSpotify
+import RadioPlaylistLib
 
 fileprivate let logger = Logger(label: "RadioPlaylistCLI")
 
 @main
 struct RadioPlaylistCLI: AsyncParsableCommand {
-    @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file()) var credentialsFilename: String = "credentials.json"
-    @Option(help: "A redirect URL configured at Spotify that may be used for your app.", transform: {URL(string: $0)}) var spotifyRedirectUriForLogin: URL?
-    @Option(help: "The URL Spotify redirected you to after authorizing the app.", transform: {URL(string: $0)}) var spotifyRedirectUriAfterLogin: URL?
+    @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
+    var credentialsFilePath: URL = URL(filePath: "spotify.credentials", directoryHint: .notDirectory)
+    @Option(name: [.long, .customShort("t")], help: "The file location of the track cache.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
+    var trackCacheFilePath: URL = URL(filePath: "trackcache.json", directoryHint: .notDirectory)
     
-    @Flag(name: .shortAndLong, help: "If actived the CLI will read all required information from STD-IN instead using parameters.") var readRedirectUriFromStdIn: Bool = false
+    @Option(help: "A redirect URL configured at Spotify that may be used for your app.", transform: {URL(string: $0)})
+    var spotifyRedirectUriForLogin: URL?
+    @Option(help: "The URL Spotify redirected you to after authorizing the app.", transform: {URL(string: $0)})
+    var spotifyRedirectUriAfterLogin: URL?
+
+    @Option(name: .customLong("client-id"), help: "The Client-ID for your Spotify app") 
+    var spotifyClientId: String?
+    @Option(name: .customLong("client-secret"), help: "The Client-Secret for your Spotify app")
+    var spotifyClientSecret: String?
+
+    @Option(name: .shortAndLong, help: "The ID of the radio station for analyze")
+    var radioStation: String
+    @Option(name: .shortAndLong, help: "Number of days to look in the past for tracks")
+    var daysInPast: Int = 6
+    @Option(name: .shortAndLong, help: "The name of the playlist where to store the extracted tracks")
+    var playlistName: String
+    @Flag
+    var publicPlaylist: Bool = false
     
-    @Argument(help: "The Client-ID for your Spotify app") var spotifyClientId: String
-    @Argument(help: "The Client-Secret for your Spotify app") var spotifyClientSecret: String
     
-    @Argument(help: "The ID of the radio station for analyze") var radioStation: String
-    @Argument var daysInPast: Int = 6
-    @Argument(help: "The name of the playlist where to store the extracted tracks") var playlistName: String
-    
-    @Option var ignoreTrackIds: [String] = []
-    
-    mutating func run() async throws {
-        let messages = checkParameters()
-        guard messages.isEmpty else {
-            messages.forEach { print($0) }
-            return
+//
+//    @Option var ignoreTrackIds: [String] = []
+
+    @Flag(name: .long, help: "If actived the CLI will read all sensitive information from STD-IN instead using parameters.") var readFromStdIn: Bool = false
+
+    mutating func validate() throws {
+        if readFromStdIn {
+            try readInputFromStdIn()
         }
         
-        try await execute()
+        guard !radioStation.isEmpty else {
+            throw ValidationError("Radio station must not be empty.")
+        }
+        guard !playlistName.isEmpty else {
+            throw ValidationError("The playlist name must not be empty.")
+        }
+        guard daysInPast >= 0 else {
+            throw ValidationError("Number of days to parse must be 0 or bigger.")
+        }
+        
+        
     }
     
-    private func checkParameters() -> [String] {
-        // TODO
-        return []
+    mutating func readInputFromStdIn() throws {
+        print("Please enter your Spotify client id:")
+        spotifyClientId = readLine(strippingNewline: true) ?? ""
+        print("Please enter your Spotify client secret:")
+        spotifyClientSecret = readLine(strippingNewline: true) ?? ""
     }
     
-    private func execute() async throws {
-        let authResult = try await SpotifyBuilder(
-            clientId: spotifyClientId,
-            clientSecret: spotifyClientSecret,
-            credentialsFilename: credentialsFilename,
-            spotifyRedirectUriForLogin: spotifyRedirectUriForLogin,
+    mutating func run() async throws {
+        let builder = SpotifyBuilder(
+            clientId: spotifyClientId ?? "",
+            clientSecret: spotifyClientSecret ?? "",
+            credentialsFilePath: credentialsFilePath,
+            spotifyRedirectUriForLogin: URL(string: "http://localhost:7000"),//spotifyRedirectUriForLogin,
             spotifyRedirectedUriAfterLogin: spotifyRedirectUriAfterLogin
         )
-            .createSpotifyApi()
+        let authResult = try await builder.createSpotifyApi()
         
         if let url = authResult.redirectUri {
-            print("Spotify needs your action to authorize the use of this app. Please visit:")
-            print(url)
-            return
+            throw CleanExit.message("Spotify needs your action to authorize the use of this app.\nPlease visit: \(url)\n\nAfter that start this tool again and give the redirected URL as parameter '--spotify-redirect-uri-after-login'")
         }
         
         if let spotifyApi = authResult.spotifyApi {
             let input = Input(
                 station: radioStation,
-                daysInPast: 6,
+                daysInPast: daysInPast,
                 playlist: playlistName,
                 playlistShallBePublic: false,
                 maxPlaylistItems: 0,
-                trackIdsToIgnore: ignoreTrackIds
+                trackIdsToIgnore: ["288254391476651696", "936772812185958052"]
             )
-            let converter = OnlineradioboxToSpotifyConverter(spotifyApi: spotifyApi)
+            print("Track cache location: ", trackCacheFilePath.absoluteString)
+            let converter = OnlineradioboxToSpotifyConverter(spotifyApi: spotifyApi, usingCacheIn: trackCacheFilePath)
             try await converter.doDownloadAndConversion(for: input)
         }
     }
 }
 
-enum CliError : LocalizedError {
-    case parameterCheckFailed
+protocol InputProvider {
+    var spotifyClientId: String { get }
+    var spotifyClientSecret: String { get }
+    var spotifyRedirectUri: String { get }
 }

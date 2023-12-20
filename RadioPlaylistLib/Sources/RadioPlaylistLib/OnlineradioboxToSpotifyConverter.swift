@@ -12,26 +12,23 @@ import SpotifyWebAPI
 fileprivate let logger = Logger(label: "Converter")
 
 public class OnlineradioboxToSpotifyConverter {
-    private let trackCache = TrackCache.shared
-    private let orb = OnlineradioBox()
+    private let trackCache: TrackCache
     private let trackManager = TrackManager()
+    private let orb = OnlineradioBox()
     private let spotify: Spotify
     
-    public init(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
+    public init(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>, usingCacheIn cacheLocation: URL) {
+        self.trackCache = TrackCache(withLocation: cacheLocation)
         self.spotify = Spotify(spotifyApi: spotifyApi)
     }
     
     public func doDownloadAndConversion(for input: Input) async throws {
-        try await doDownloadAndConversion(forStation: input.station, forTheLastDays: input.daysInPast, andUploadToSpotifyPlaylist: input.playlist, thatShallBePublic: input.playlistShallBePublic)
-    }
-    
-    private func doDownloadAndConversion(forStation station: String, forTheLastDays days: Int, andUploadToSpotifyPlaylist playlistName: String, thatShallBePublic playlistIsPublic: Bool) async throws {
-        logger.info("Starting conversion application for station '\(station)' for \(days) day(s).")
+        logger.info("Starting conversion application for station '\(input.station)' for \(input.daysInPast) day(s).")
         
-        let orbPlaylist = try await loadPlaylistFromOnlineRadioBox(forStation: station, forTheLastDays: days)
+        let orbPlaylist = try await loadPlaylistFromOnlineRadioBox(forStation: input.station, forTheLastDays: input.daysInPast)
         try await loadTrackDetailsFromOnlineRadioBox()
         try await matchSongsWithSpotify()
-        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: playlistName, playlistIsPublic: playlistIsPublic, maxPlaylistItems: input.maxPlaylistItems, ignoring: input.trackIdsToIgnore)
+        try await updateSpotifyPlaylist(withTracksFrom: orbPlaylist, playlistName: input.playlist, playlistIsPublic: input.playlistShallBePublic, maxPlaylistItems: input.maxPlaylistItems, ignoring: input.trackIdsToIgnore)
     }
     
     private func loadPlaylistFromOnlineRadioBox(forStation station: String, forTheLastDays days: Int) async throws -> [ORBTrack] {

@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Olaf Neumann on 29.11.23.
 //
@@ -8,9 +8,10 @@
 import Foundation
 import SpotifyWebAPI
 import Combine
-import StringMetric
 import Logging
+import CollectionConcurrencyKit
 import Differ
+import StringMetric
 
 fileprivate let logger = Logger(label: "spotify")
 
@@ -22,41 +23,7 @@ class Spotify {
     
     init(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
         self.spotifyApi = spotifyApi
-//        spotify = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: spotifyClientId, clientSecret: spotifyClientSecret))
-//        spotify.authorizationManagerDidChange
-//            .sink(receiveValue: authorizationManagerDidChange)
-//            .store(in: &cancellables)
     }
-    
-//    private func authorizationManagerDidChange() {
-//        do {
-//            let authManagerData = try JSONEncoder().encode(spotify.authorizationManager)
-//            let url = Files.url(forFilename: "credentials.txt")
-//            try authManagerData.write(to: url)
-//        } catch {
-//            logger.error("Unable to store credentials: \(error.localizedDescription)")
-//        }
-//    }
-//    
-//    func logInToSpotify() async throws {
-//        let url = Files.url(forFilename: "credentials.txt")
-//        if let data = try? Data(contentsOf: url) {
-//            let authorizationManager = try JSONDecoder().decode(AuthorizationCodeFlowManager.self, from: data)
-//            spotify.authorizationManager = authorizationManager
-//            return
-//        }
-//        
-//        let redirectUrl: String? = nil // ""
-//
-//        if let redirectUrl {
-//            try await spotify.authorizationManager.requestAccessAndRefreshTokens(redirectURIWithQuery: URL(string: redirectUrl)!).async()
-//        } else {
-//            let url = spotify.authorizationManager.makeAuthorizationURL(redirectURI: URL(string: "http://localhost:7000")!, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
-//            guard let url else { fatalError("No URL created.") }
-//            logger.info("\(url)")
-//            fatalError()
-//        }
-//    }
     
     func convertToSpotify(_ tracks: [SpotifyTrackRequest]) async throws -> [(id: String, track: Track)] {
         return try await tracks
@@ -109,7 +76,7 @@ class Spotify {
         }
         logger.info("Handled \(insertions) insertion(s), \(deletions) deletion(s) and \(moves) move(s).")
     }
-
+    
     private func getPlaylist(withName name: String) async throws -> Playlist<PlaylistItemsReference>? {
         return try await spotifyApi.currentUserPlaylists().async()
             .items
