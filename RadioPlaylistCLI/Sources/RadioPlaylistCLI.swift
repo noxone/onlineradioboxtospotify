@@ -113,7 +113,12 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
     
     func getAppRedirectUrl() throws -> URL? {
         if isInteractive() {
-            throw ExitCode(19)
+            return try getUserInput(
+                staticInput: spotifyRedirectUriForLogin,
+                stdInQuestion: "Enter app redirect URL:",
+                transform: { URL(string: $0) },
+                validationErrorMessage: "No app redirection URL specified."
+            )
         } else {
             if let spotifyRedirectUriForLogin {
                 return spotifyRedirectUriForLogin
@@ -126,16 +131,8 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
 
     func getSpotifyRedirectUri(for redirectUri: URL?) throws -> URL? {
         if isInteractive() {
-            
-        } else {
-            if let spotifyRedirectUriAfterLogin {
-                return spotifyRedirectUriAfterLogin
-            }
-            throw ValidationError("No redirect URL from Spotify specified")
-        }
-        if redirectUri == nil {
-            if readFromStdIn {
-                
+            if let redirectUri {
+                print("Spotify needs your action to authorize the use of this app.\nPlease visit: \(redirectUri)\n\nAfter that please come back here.")
             }
             return try getUserInput(
                 staticInput: spotifyRedirectUriAfterLogin,
@@ -143,16 +140,13 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
                 transform: { URL(string: $0)! },
                 validationErrorMessage: "No redirection from Spotify specified"
             )
+        } else {
+            if let spotifyRedirectUriAfterLogin {
+                return spotifyRedirectUriAfterLogin
+            }
+            throw ValidationError("No redirect URL from Spotify specified")
         }
-        
-        
-        
-        if let spotifyRedirectUriAfterLogin {
-            return spotifyRedirectUriAfterLogin
-        } else if readFromStdIn {
-            
-        }
-        return nil
+
         
       /*/  if spotifyRedirectUriForLogin == nil {
             throw CleanExit.message("Spotify needs your action to authorize the use of this app.\nPlease visit: \(redirectUri)\n\nAfter that start this tool again and give the redirected URL as parameter '--spotify-redirect-uri-after-login'")

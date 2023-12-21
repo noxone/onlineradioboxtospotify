@@ -60,7 +60,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--read-from-std-in"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--radio-station radiohamburg"
