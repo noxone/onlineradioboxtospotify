@@ -12,7 +12,7 @@ import RadioPlaylistLib
 fileprivate let logger = Logger(label: "RadioPlaylistCLI")
 
 @main
-struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
+struct RadioPlaylistCLI: AsyncParsableCommand, CommandCallback {
     @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
     var credentialsFilePath: URL = URL(filePath: "spotify.credentials", directoryHint: .notDirectory)
     @Option(name: [.long, .customShort("t")], help: "The file location of the track cache.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
@@ -57,9 +57,8 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
     
     mutating func run() async throws {
         let builder = SpotifyBuilder(
-            inputProvider: self,
-            credentialsFilePath: credentialsFilePath,
-            spotifyRedirectUriForLogin: URL(string: "http://localhost:7000")//spotifyRedirectUriForLogin
+            callback: self,
+            credentialsFilePath: credentialsFilePath
         )
         let spotifyApi = try await builder.createSpotifyApi()
         
@@ -82,15 +81,11 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
     }
     
     private func getUserInput(staticString: String?, stdInQuestion: String, validationErrorMessage: String) throws -> String {
-        return try getUserInput(staticInput: staticString, stdInQuestion: stdInQuestion, transform: { $0 }, validationErrorMessage: validationErrorMessage)
-    }
-    
-    private func getUserInput<T>(staticInput: T?, stdInQuestion: String, transform: (String) throws -> T, validationErrorMessage: String) throws -> T {
-        if let staticInput {
-            return staticInput
+        if let staticString {
+            return staticString
         } else if readFromStdIn {
             let input = getStdInData(forQuestion: stdInQuestion)
-            return try transform(input)
+            return input
         }
         throw ValidationError(validationErrorMessage)
     }
@@ -113,12 +108,12 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
     
     func getAppRedirectUrl() throws -> URL? {
         if isInteractive() {
-            return try getUserInput(
-                staticInput: spotifyRedirectUriForLogin,
+            return try URL(string: getUserInput(
+                staticString: spotifyRedirectUriForLogin?.absoluteString,
                 stdInQuestion: "Enter app redirect URL:",
-                transform: { URL(string: $0) },
+                //transform: { URL(string: $0) },
                 validationErrorMessage: "No app redirection URL specified."
-            )
+            ))
         } else {
             if let spotifyRedirectUriForLogin {
                 return spotifyRedirectUriForLogin
@@ -134,45 +129,38 @@ struct RadioPlaylistCLI: AsyncParsableCommand, InputProvider {
             if let redirectUri {
                 print("Spotify needs your action to authorize the use of this app.\nPlease visit: \(redirectUri)\n\nAfter that please come back here.")
             }
-            return try getUserInput(
-                staticInput: spotifyRedirectUriAfterLogin,
+            return try URL(string: getUserInput(
+                staticString: spotifyRedirectUriAfterLogin?.absoluteString,
                 stdInQuestion: "Enter redirected URL from Spotify:",
-                transform: { URL(string: $0)! },
+                //transform: { URL(string: $0)! },
                 validationErrorMessage: "No redirection from Spotify specified"
-            )
+            ))
         } else {
             if let spotifyRedirectUriAfterLogin {
                 return spotifyRedirectUriAfterLogin
             }
             throw ValidationError("No redirect URL from Spotify specified")
         }
-
-        
-      /*/  if spotifyRedirectUriForLogin == nil {
-            throw CleanExit.message("Spotify needs your action to authorize the use of this app.\nPlease visit: \(redirectUri)\n\nAfter that start this tool again and give the redirected URL as parameter '--spotify-redirect-uri-after-login'")
-        }
-        
-        if let spotifyRedirectUriAfterLogin {
-            return spotifyRedirectUriAfterLogin
-        }
-        
-        let urlString = getStdInData(forQuestion: "Enter Spotify redirect URI:")
-        if let url = URL(string: urlString) {
-            return url
-        }
-        
-        throw ExitCode(3)*/
     }
     
     func isInteractive() -> Bool {
         readFromStdIn
     }
+    
+    func exit(withMessage message: String?) throws -> Never {
+        if let message {
+            throw CleanExit.message(message)
+        } else {
+            throw ExitCode.failure
+        }
+    }
 }
 
-protocol InputProvider {
+protocol CommandCallback {
+    func isInteractive() -> Bool
     func getSpotifyClientId() throws -> String
     func getSpotifyClientSecret() throws -> String
-    func isInteractive() -> Bool
     func getAppRedirectUrl() throws -> URL?
     func getSpotifyRedirectUri(for redirectUri: URL?) throws -> URL?
+    func exit(withMessage message: String?) throws -> Never
 }
