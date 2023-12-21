@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SpotifyWebAPI
 import Logging
+import ArgumentParser
 
 fileprivate let logger = Logger(label: "SpotifyBuilder")
 
@@ -25,30 +26,37 @@ class SpotifyBuilder {
         self.spotifyRedirectUriForLogin = spotifyRedirectUriForLogin
     }
     
-    private func createBasicSpotifyApi(clientId: String, clientSecret: String) -> SpotifyAPI<AuthorizationCodeFlowManager> {
-        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: inputProvider.getSpotifyClientId(), clientSecret: inputProvider.getSpotifyClientSecret()))
-        spotifyApi.authorizationManagerDidChange
-            .sink(receiveValue: { self.authorizationManagerDidChange(for: spotifyApi) })
-            .store(in: &cancellables)
-        return spotifyApi
-    }
-    
     func createSpotifyApi() async throws -> SpotifyAPI<AuthorizationCodeFlowManager> {
         if let authorizationManager = readAuthorizationManagerFromFile() {
-            var spotifyApi = createBasicSpotifyApi(clientId: "", clientSecret: "")
+            let spotifyApi = createBasicSpotifyApi(clientId: "", clientSecret: "")
             logger.info("Set authorization manager to preloaded manager.")
             spotifyApi.authorizationManager = authorizationManager
             return spotifyApi
         }
         
-        let spotifyApi = createBasicSpotifyApi(clientId: inputProvider.getSpotifyClientId(), clientSecret: inputProvider.getSpotifyClientSecret())
-        let authorizationUrl = try await logIn(spotifyApi: spotifyApi)
-        
-        if let authorizationUrl {
-            return (spotifyApi: nil, redirectUri: authorizationUrl)
+        let clientID = try inputProvider.getSpotifyClientId()
+        let clientSecret = try inputProvider.getSpotifyClientSecret()
+        let spotifyApi = createBasicSpotifyApi(clientId: clientID , clientSecret: clientSecret)
+        if inputProvider.isInteractive() {
+            throw CleanExit.message("not implemented yet") // TODO: remove "import ArgumentParser"
         } else {
-            return (spotifyApi: spotifyApi, redirectUri: nil)
+            if let spotifyAppRedirectUrl = try inputProvider.getAppRedirectUrl(){
+                let url = spotifyApi.authorizationManager.makeAuthorizationURL(redirectURI: spotifyAppRedirectUrl, showDialog: false, scopes: [.playlistModifyPublic, .playlistModifyPrivate, .playlistReadPrivate, .playlistReadCollaborative])
+                // TODO: make cleaner
+                throw CleanExit.message("Spotify needs your action to authorize the use of this app.\nPlease visit: \(url!)\n\nAfter that start this tool again and give the redirected URL as parameter '--spotify-redirect-uri-after-login'")
+            } else if let spotifyLoginRedirectedUrl = try inputProvider.getSpotifyRedirectUri(for: nil) {
+                try await authorize(spotifyApi: spotifyApi, usingRedirectUri: spotifyLoginRedirectedUrl.absoluteString)
+            }
+            throw ExitCode.failure
         }
+    }
+    
+    private func createBasicSpotifyApi(clientId: String, clientSecret: String) -> SpotifyAPI<AuthorizationCodeFlowManager> {
+        let spotifyApi = SpotifyAPI(authorizationManager: AuthorizationCodeFlowManager(clientId: clientId, clientSecret: clientSecret))
+        spotifyApi.authorizationManagerDidChange
+            .sink(receiveValue: { self.authorizationManagerDidChange(for: spotifyApi) })
+            .store(in: &cancellables)
+        return spotifyApi
     }
     
     private func authorizationManagerDidChange(for spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
@@ -61,7 +69,7 @@ class SpotifyBuilder {
         }
     }
     
-    private func logIn(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) async throws -> URL? {
+    /*private func logIn(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) async throws -> URL? {
         if let spotifyRedirectedUriAfterLogin = try inputProvider.getSpotifyRedirectUri() {
             try await authorize(spotifyApi: spotifyApi, usingRedirectUri: spotifyRedirectedUriAfterLogin.absoluteString)
             return nil
@@ -71,7 +79,7 @@ class SpotifyBuilder {
         } else {
             throw SpotifyBuilderError.noRedirectUriGiven
         }
-    }
+    }*/
     
     private func authorize(spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>, usingRedirectUri uri: String) async throws {
         do {

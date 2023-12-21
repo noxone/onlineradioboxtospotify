@@ -52,11 +52,15 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-c /Users/olafneumann/spotify.credentials"
-            isEnabled = "YES">
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--spotify-redirect-uri-for-login http://localhost:7000"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--read-from-std-in"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--radio-station radiohamburg"
