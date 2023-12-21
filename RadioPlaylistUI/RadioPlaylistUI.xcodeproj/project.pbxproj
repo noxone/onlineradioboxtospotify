@@ -1,0 +1,649 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C559820F2B2E5B6500CDB905 /* RadioPlaylistUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C559820E2B2E5B6500CDB905 /* RadioPlaylistUIApp.swift */; };
+		C55982112B2E5B6500CDB905 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55982102B2E5B6500CDB905 /* ContentView.swift */; };
+		C55982132B2E5B6700CDB905 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C55982122B2E5B6700CDB905 /* Assets.xcassets */; };
+		C55982172B2E5B6700CDB905 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C55982162B2E5B6700CDB905 /* Preview Assets.xcassets */; };
+		C55982212B2E5B6700CDB905 /* RadioPlaylistUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55982202B2E5B6700CDB905 /* RadioPlaylistUITests.swift */; };
+		C559822B2B2E5B6700CDB905 /* RadioPlaylistUIUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C559822A2B2E5B6700CDB905 /* RadioPlaylistUIUITests.swift */; };
+		C559822D2B2E5B6700CDB905 /* RadioPlaylistUIUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C559822C2B2E5B6700CDB905 /* RadioPlaylistUIUITestsLaunchTests.swift */; };
+		C559823D2B2E5DCF00CDB905 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = C559823C2B2E5DCF00CDB905 /* KeychainAccess */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C559821D2B2E5B6700CDB905 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C55982032B2E5B6500CDB905 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C559820A2B2E5B6500CDB905;
+			remoteInfo = RadioPlaylistUI;
+		};
+		C55982272B2E5B6700CDB905 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C55982032B2E5B6500CDB905 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C559820A2B2E5B6500CDB905;
+			remoteInfo = RadioPlaylistUI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C559820B2B2E5B6500CDB905 /* RadioPlaylistUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioPlaylistUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C559820E2B2E5B6500CDB905 /* RadioPlaylistUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioPlaylistUIApp.swift; sourceTree = "<group>"; };
+		C55982102B2E5B6500CDB905 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		C55982122B2E5B6700CDB905 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C55982142B2E5B6700CDB905 /* RadioPlaylistUI.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RadioPlaylistUI.entitlements; sourceTree = "<group>"; };
+		C55982162B2E5B6700CDB905 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		C559821C2B2E5B6700CDB905 /* RadioPlaylistUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RadioPlaylistUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C55982202B2E5B6700CDB905 /* RadioPlaylistUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioPlaylistUITests.swift; sourceTree = "<group>"; };
+		C55982262B2E5B6700CDB905 /* RadioPlaylistUIUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RadioPlaylistUIUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C559822A2B2E5B6700CDB905 /* RadioPlaylistUIUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioPlaylistUIUITests.swift; sourceTree = "<group>"; };
+		C559822C2B2E5B6700CDB905 /* RadioPlaylistUIUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioPlaylistUIUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C55982082B2E5B6500CDB905 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C559823D2B2E5DCF00CDB905 /* KeychainAccess in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C55982192B2E5B6700CDB905 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C55982232B2E5B6700CDB905 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C55982022B2E5B6500CDB905 = {
+			isa = PBXGroup;
+			children = (
+				C559820D2B2E5B6500CDB905 /* RadioPlaylistUI */,
+				C559821F2B2E5B6700CDB905 /* RadioPlaylistUITests */,
+				C55982292B2E5B6700CDB905 /* RadioPlaylistUIUITests */,
+				C559820C2B2E5B6500CDB905 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C559820C2B2E5B6500CDB905 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C559820B2B2E5B6500CDB905 /* RadioPlaylistUI.app */,
+				C559821C2B2E5B6700CDB905 /* RadioPlaylistUITests.xctest */,
+				C55982262B2E5B6700CDB905 /* RadioPlaylistUIUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C559820D2B2E5B6500CDB905 /* RadioPlaylistUI */ = {
+			isa = PBXGroup;
+			children = (
+				C559820E2B2E5B6500CDB905 /* RadioPlaylistUIApp.swift */,
+				C55982102B2E5B6500CDB905 /* ContentView.swift */,
+				C55982122B2E5B6700CDB905 /* Assets.xcassets */,
+				C55982142B2E5B6700CDB905 /* RadioPlaylistUI.entitlements */,
+				C55982152B2E5B6700CDB905 /* Preview Content */,
+			);
+			path = RadioPlaylistUI;
+			sourceTree = "<group>";
+		};
+		C55982152B2E5B6700CDB905 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				C55982162B2E5B6700CDB905 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		C559821F2B2E5B6700CDB905 /* RadioPlaylistUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C55982202B2E5B6700CDB905 /* RadioPlaylistUITests.swift */,
+			);
+			path = RadioPlaylistUITests;
+			sourceTree = "<group>";
+		};
+		C55982292B2E5B6700CDB905 /* RadioPlaylistUIUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C559822A2B2E5B6700CDB905 /* RadioPlaylistUIUITests.swift */,
+				C559822C2B2E5B6700CDB905 /* RadioPlaylistUIUITestsLaunchTests.swift */,
+			);
+			path = RadioPlaylistUIUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C559820A2B2E5B6500CDB905 /* RadioPlaylistUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C55982302B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUI" */;
+			buildPhases = (
+				C55982072B2E5B6500CDB905 /* Sources */,
+				C55982082B2E5B6500CDB905 /* Frameworks */,
+				C55982092B2E5B6500CDB905 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RadioPlaylistUI;
+			packageProductDependencies = (
+				C559823C2B2E5DCF00CDB905 /* KeychainAccess */,
+			);
+			productName = RadioPlaylistUI;
+			productReference = C559820B2B2E5B6500CDB905 /* RadioPlaylistUI.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C559821B2B2E5B6700CDB905 /* RadioPlaylistUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C55982332B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUITests" */;
+			buildPhases = (
+				C55982182B2E5B6700CDB905 /* Sources */,
+				C55982192B2E5B6700CDB905 /* Frameworks */,
+				C559821A2B2E5B6700CDB905 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C559821E2B2E5B6700CDB905 /* PBXTargetDependency */,
+			);
+			name = RadioPlaylistUITests;
+			productName = RadioPlaylistUITests;
+			productReference = C559821C2B2E5B6700CDB905 /* RadioPlaylistUITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C55982252B2E5B6700CDB905 /* RadioPlaylistUIUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C55982362B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUIUITests" */;
+			buildPhases = (
+				C55982222B2E5B6700CDB905 /* Sources */,
+				C55982232B2E5B6700CDB905 /* Frameworks */,
+				C55982242B2E5B6700CDB905 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C55982282B2E5B6700CDB905 /* PBXTargetDependency */,
+			);
+			name = RadioPlaylistUIUITests;
+			productName = RadioPlaylistUIUITests;
+			productReference = C55982262B2E5B6700CDB905 /* RadioPlaylistUIUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C55982032B2E5B6500CDB905 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1510;
+				LastUpgradeCheck = 1510;
+				TargetAttributes = {
+					C559820A2B2E5B6500CDB905 = {
+						CreatedOnToolsVersion = 15.1;
+					};
+					C559821B2B2E5B6700CDB905 = {
+						CreatedOnToolsVersion = 15.1;
+						TestTargetID = C559820A2B2E5B6500CDB905;
+					};
+					C55982252B2E5B6700CDB905 = {
+						CreatedOnToolsVersion = 15.1;
+						TestTargetID = C559820A2B2E5B6500CDB905;
+					};
+				};
+			};
+			buildConfigurationList = C55982062B2E5B6500CDB905 /* Build configuration list for PBXProject "RadioPlaylistUI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C55982022B2E5B6500CDB905;
+			packageReferences = (
+				C55982392B2E5D8C00CDB905 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
+			productRefGroup = C559820C2B2E5B6500CDB905 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C559820A2B2E5B6500CDB905 /* RadioPlaylistUI */,
+				C559821B2B2E5B6700CDB905 /* RadioPlaylistUITests */,
+				C55982252B2E5B6700CDB905 /* RadioPlaylistUIUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C55982092B2E5B6500CDB905 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C55982172B2E5B6700CDB905 /* Preview Assets.xcassets in Resources */,
+				C55982132B2E5B6700CDB905 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C559821A2B2E5B6700CDB905 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C55982242B2E5B6700CDB905 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C55982072B2E5B6500CDB905 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C55982112B2E5B6500CDB905 /* ContentView.swift in Sources */,
+				C559820F2B2E5B6500CDB905 /* RadioPlaylistUIApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C55982182B2E5B6700CDB905 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C55982212B2E5B6700CDB905 /* RadioPlaylistUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C55982222B2E5B6700CDB905 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C559822D2B2E5B6700CDB905 /* RadioPlaylistUIUITestsLaunchTests.swift in Sources */,
+				C559822B2B2E5B6700CDB905 /* RadioPlaylistUIUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C559821E2B2E5B6700CDB905 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C559820A2B2E5B6500CDB905 /* RadioPlaylistUI */;
+			targetProxy = C559821D2B2E5B6700CDB905 /* PBXContainerItemProxy */;
+		};
+		C55982282B2E5B6700CDB905 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C559820A2B2E5B6500CDB905 /* RadioPlaylistUI */;
+			targetProxy = C55982272B2E5B6700CDB905 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		C559822E2B2E5B6700CDB905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C559822F2B2E5B6700CDB905 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		C55982312B2E5B6700CDB905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RadioPlaylistUI/RadioPlaylistUI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"RadioPlaylistUI/Preview Content\"";
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C55982322B2E5B6700CDB905 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = RadioPlaylistUI/RadioPlaylistUI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"RadioPlaylistUI/Preview Content\"";
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		C55982342B2E5B6700CDB905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RadioPlaylistUI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RadioPlaylistUI";
+			};
+			name = Debug;
+		};
+		C55982352B2E5B6700CDB905 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RadioPlaylistUI.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/RadioPlaylistUI";
+			};
+			name = Release;
+		};
+		C55982372B2E5B6700CDB905 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUIUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RadioPlaylistUI;
+			};
+			name = Debug;
+		};
+		C55982382B2E5B6700CDB905 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = NBA2M3HYSW;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				MACOSX_DEPLOYMENT_TARGET = 14.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.olafneumann.RadioPlaylistUIUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = RadioPlaylistUI;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C55982062B2E5B6500CDB905 /* Build configuration list for PBXProject "RadioPlaylistUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C559822E2B2E5B6700CDB905 /* Debug */,
+				C559822F2B2E5B6700CDB905 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C55982302B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C55982312B2E5B6700CDB905 /* Debug */,
+				C55982322B2E5B6700CDB905 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C55982332B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C55982342B2E5B6700CDB905 /* Debug */,
+				C55982352B2E5B6700CDB905 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C55982362B2E5B6700CDB905 /* Build configuration list for PBXNativeTarget "RadioPlaylistUIUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C55982372B2E5B6700CDB905 /* Debug */,
+				C55982382B2E5B6700CDB905 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C55982392B2E5D8C00CDB905 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C559823C2B2E5DCF00CDB905 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C55982392B2E5D8C00CDB905 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C55982032B2E5B6500CDB905 /* Project object */;
+}

@@ -33,7 +33,7 @@ List of things that need to be done in this app (unordered):
 - Add test
 - Add a lot of error handling
 - Add automation scripts to build stuff in Github actions
-- Split package into several packages for better reuse
+- Split package into several packages for better reuse :white_check_mark:
 - Add more input possibilities (for RSS feeds, other tracking sites, etc...)
 - Add more output possibilities (Apple Music, ...)
 - Improve the log-in procedure
