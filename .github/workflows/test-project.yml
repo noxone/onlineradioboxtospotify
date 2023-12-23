@@ -35,16 +35,16 @@ jobs:
     - name: Build library
       run: |
         cd RadioPlaylistLib
-        swift build -v
+        swift build
     - name: Run tests for library
       run: |
         cd RadioPlaylistLib
-        swift test -v
+        swift test
     - name: Build CLI
       run: |
         cd RadioPlaylistCLI
-        swift build -v
+        swift build
     - name: Run tests for CLI
       run: |
         cd RadioPlaylistCLI
-        swift test -v
+        swift test
