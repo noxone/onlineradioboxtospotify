@@ -1,0 +1,45 @@
+name: Test project
+
+on:
+  push:
+    # branches: [ "main" ]
+    # branches-ignore:
+    # - "main"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Swift 5.9
+      uses: swift-actions/setup-swift@v1
+      with:
+        swift-version: "5.9"
+    - name: Verify swift version
+      run: swift --version
+    - name: Cache artifacts
+      uses: actions/cache@v3
+      with:
+        path: |
+          RadioPlaylistLib/.build
+          RadioPlaylistCLI/.build
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-
+    - name: Build library
+      run: |
+        cd RadioPlaylistLib
+        swift build
+    - name: Run tests for library
+      run: |
+        cd RadioPlaylistLib
+        swift test
+    - name: Build CLI
+      run: |
+        cd RadioPlaylistCLI
+        swift build
+    - name: Run tests for CLI
+      run: |
+        cd RadioPlaylistCLI
+        swift test
