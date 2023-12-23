@@ -29,5 +29,9 @@ let package = Package(
                 //.product(name: "OnlineRadioBoxToSpotify", package: "OnlineRadioBoxToSpotify"),
             ]
         ),
+        .testTarget(
+            name: "RadioPlaylistCLITests",
+            dependencies: ["RadioPlaylistCLI"]
+        )
     ]
 )
