@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "RadioPlaylistCLI",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v10_15)
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),

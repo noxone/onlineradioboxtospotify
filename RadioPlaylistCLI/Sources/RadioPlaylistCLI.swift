@@ -13,10 +13,10 @@ fileprivate let logger = Logger(label: "RadioPlaylistCLI")
 
 @main
 struct RadioPlaylistCLI: AsyncParsableCommand, CommandCallback {
-    @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
-    var credentialsFilePath: URL = URL(filePath: "spotify.credentials", directoryHint: .notDirectory)
-    @Option(name: [.long, .customShort("t")], help: "The file location of the track cache.", completion: .file(), transform: { URL(filePath: $0, directoryHint: .notDirectory) })
-    var trackCacheFilePath: URL = URL(filePath: "trackcache.json", directoryHint: .notDirectory)
+    @Option(name: .shortAndLong, help: "The file where to store or load the credentials.", completion: .file(), transform: { URL(fileURLWithPath: $0) })
+    var credentialsFilePath: URL = URL(fileURLWithPath: "spotify.credentials")
+    @Option(name: [.long, .customShort("t")], help: "The file location of the track cache.", completion: .file(), transform: { URL(fileURLWithPath: $0) })
+    var trackCacheFilePath: URL = URL(fileURLWithPath: "trackcache.json")
     
     @Option(help: "A redirect URL configured at Spotify that may be used for your app.", transform: {URL(string: $0)})
     var spotifyRedirectUriForLogin: URL?
