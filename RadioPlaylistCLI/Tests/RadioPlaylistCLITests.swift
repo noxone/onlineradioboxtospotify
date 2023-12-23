@@ -1,5 +1,5 @@
 import XCTest
-@testable import RadioPlaylistLib
+@testable import RadioPlaylistCLI
 
 final class RadioPlaylistCLITests: XCTestCase {
     func testExample() throws {
