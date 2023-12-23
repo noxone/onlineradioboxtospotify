@@ -1,0 +1,30 @@
+name: Test project
+
+on:
+  push:
+    # branches: [ "main" ]
+    # branches-ignore:
+    # - "main"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build library
+      run: |
+        cd RadioPlaylistLib
+        swift build -v
+    - name: Run tests for library
+      run: |
+        cd RadioPlaylistLib
+        swift test -v
+    - name: Build CLI
+      run: |
+        cd RadioPlaylistCLI
+        swift build -v
+    - name: Run tests for CLI
+      run: |
+        cd RadioPlaylistCLI
+        swift test -v
