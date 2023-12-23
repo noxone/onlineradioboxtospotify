@@ -18,20 +18,15 @@ jobs:
         swift-version: "5.9"
     - name: Verify swift version
       run: swift --version
-    - name: Cache library
+    - name: Cache artifacts
       uses: actions/cache@v3
       with:
-        path: RadioPlaylistLib/.build
-        key: ${{ runner.os }}-spm-lib-${{ hashFiles('RadioPlaylistLib/**/Package.resolved') }}
+        path: |
+          RadioPlaylistLib/.build
+          RadioPlaylistCLI/.build
+        key: ${{ runner.os }}-spm-lib-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
-          ${{ runner.os }}-spm-lib-
-    - name: Cache CLI
-      uses: actions/cache@v3
-      with:
-        path: RadioPlaylistCLI/.build
-        key: ${{ runner.os }}-spm-cli-${{ hashFiles('RadioPlaylistCLI/**/Package.resolved') }}
-        restore-keys: |
-          ${{ runner.os }}-spm-cli-
+          ${{ runner.os }}-spm-
     - name: Build library
       run: |
         cd RadioPlaylistLib
