@@ -1,7 +1,7 @@
 import XCTest
 @testable import RadioPlaylistLib
 
-final class RadioPlaylistCLITests: XCTestCase {
+final class RadioPlaylistLibTests2: XCTestCase {
     func testExample() throws {
         // XCTest Documentation
         // https://developer.apple.com/documentation/xctest

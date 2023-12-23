@@ -16,9 +16,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
         .package(url: "https://github.com/Peter-Schorn/SpotifyAPI.git", .upToNextMajor(from: "2.2.4")),
-        //.package(name: "OnlineRadioBoxToSpotify", path: "../OnlineRadioBoxToSpotify"),
-        .package(path: "../RadioPlaylistLib")
-        
+        .package(path: "../RadioPlaylistLib"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -30,7 +28,6 @@ let package = Package(
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SpotifyAPI", package: "SpotifyAPI"),
                 .product(name: "RadioPlaylistLib", package: "RadioPlaylistLib"),
-                //.product(name: "OnlineRadioBoxToSpotify", package: "OnlineRadioBoxToSpotify"),
             ]
         ),
         .testTarget(
