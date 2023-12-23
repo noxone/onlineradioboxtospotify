@@ -11,36 +11,18 @@ import SwiftSoup
 import RegexBuilder
 
 class OnlineradioBox {
-    private static let regexForId = Regex {
-        Capture {
-            OneOrMore {
-                .digit
-            }
-        }
-    }
-    private static let regexForTime = Regex {
-        Capture {
-            OneOrMore {
-                .digit
-            }
-        }
-        Character(":")
-        Capture {
-            OneOrMore {
-                .digit
-            }
-        }
-    }
     private let http = Http()
+    private let regexForId = try! NSRegularExpression(pattern: "/track/(?<id>\\d+)/", options: [.caseInsensitive])
+    private let regexForTime = try! NSRegularExpression(pattern: "(?<hour>\\d+):(?<minute>\\d+)", options: [.caseInsensitive])
     
     init() {}
     
     private func extractId(fromHref href: String) -> String? {
-        if let match = href.firstMatch(of: OnlineradioBox.regexForId) {
-            let id = String(match.output.1).trimmingCharacters(in: .whitespacesAndNewlines)
-            if !id.isEmpty {
-                return id
-            }
+        let range = NSRange(location: 0, length: href.count)
+        let matches = regexForId.matches(in: href, options: [], range: range)
+        if let first = matches.first,
+           let range = href.range(from: first.range(withName: "id")) {
+            return String(href[range])
         }
         return nil
     }
@@ -84,8 +66,16 @@ class OnlineradioBox {
     }
     
     private func parse(time: String) -> (hour: Int, minute: Int)? {
-        guard let match = time.firstMatch(of: OnlineradioBox.regexForTime) else { return nil }
-        return (hour: Int(match.output.1)!, minute: Int(match.output.2)!)
+        let range = NSRange(location: 0, length: time.count)
+        let matches = regexForTime.matches(in: time, options: [], range: range)
+        if let first = matches.first,
+           let rangeHour = time.range(from: first.range(withName: "hour")),
+           let rangeMinute = time.range(from: first.range(withName: "minute")) {
+            let hour = String(time[rangeHour])
+            let minute = String(time[rangeMinute])
+            return (hour: Int(hour)!, minute: Int(minute)!)
+        }
+        return nil
     }
     
     private func extractTrackData(from document: Document, withId id: String) throws -> ORBTrack {
