@@ -24,7 +24,7 @@ jobs:
         path: |
           RadioPlaylistLib/.build
           RadioPlaylistCLI/.build
-        key: ${{ runner.os }}-spm-lib-${{ hashFiles('**/Package.resolved') }}
+        key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-
     - name: Build library
