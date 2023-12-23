@@ -35,7 +35,9 @@ let package = Package(
         ),
         .testTarget(
             name: "RadioPlaylistCLITests",
-            dependencies: ["RadioPlaylistCLI"]
+            dependencies: [
+                .target(name: "RadioPlaylistCLI")
+            ]
         )
     ]
 )
