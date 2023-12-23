@@ -12,6 +12,24 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Install Swift
+      uses: slashmo/install-swift@v0.1.0
+      with:
+        version: 5.9
+    - name: Cache library
+      uses: actions/cache@v2
+      with:
+        path: RadioPlaylistLib/.build
+        key: ${{ runner.os }}-spm-lib-${{ hashFiles('RadioPlaylistLib/**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-lib-
+    - name: Cache CLI
+      uses: actions/cache@v2
+      with:
+        path: RadioPlaylistCLI/.build
+        key: ${{ runner.os }}-spm-cli-${{ hashFiles('RadioPlaylistCLI/**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-spm-cli-
     - name: Build library
       run: |
         cd RadioPlaylistLib
