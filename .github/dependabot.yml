@@ -9,3 +9,7 @@ updates:
     directory: "/RadioPlaylistLib/" # Location of package manifests
     schedule:
       interval: "weekly"
+  - package-ecosystem: "swift" # See documentation for possible values
+    directory: "/RadioPlaylistCLI/" # Location of package manifests
+    schedule:
+      interval: "weekly"
