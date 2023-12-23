@@ -8,6 +8,10 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
+    products: [
+        .executable(name: "RadioPlaylist",
+                    targets: ["RadioPlaylistCLI"])
+    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
