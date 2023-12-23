@@ -12,10 +12,12 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install Swift
-      uses: slashmo/install-swift@v0.1.0
+    - name: Install Swift 5.9
+      uses: swift-actions/setup-swift@v1
       with:
-        version: 5.9
+        swift-version: "5.9"
+    - name: Verify swift version
+      run: swift --version
     - name: Cache library
       uses: actions/cache@v2
       with:
