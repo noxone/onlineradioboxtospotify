@@ -14,16 +14,20 @@ The app is developed using Swift. So, using a Mac with Xcode is probably the eas
 
 ### Steps to start local development
 
-- Clone the repository
 - Create an app in the [dashboard](https://developer.spotify.com/dashboard) of you Spotify account
-- Double click the `Package.swift` to open the package in Xcode
-- In directory `Sources` create a file called `secrets.swift` and add two variables:
-  ```swift
-  let spotifyClientId = "ENTER_YOUR_APPS_CLIENT_ID_HERE"
-  let spotifyClientSecret = "ENTER_YOUR_APPS_CLIENT_SECRET_HERE"
-  ```
+- Clone the repository
+- Do one of:
+  - Open workspace and run `RadioPlaylistCLI` from within Xcode
+  - Go to directory `RadioPlaylistCLI`
+  
+    Build the CLI using
 
-And then it should be good to run. The log-in procedure is currently a bit cumbersome, but only needs to be done once.
+    ```sh
+    swift build
+    ```
+
+    And then run the created executable.
+- The app will ask for your client ID and secret on the command line or interactively - depending on your choice.
 
 ### Things to do
 
