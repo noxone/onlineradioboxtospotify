@@ -32,11 +32,11 @@ List of things that need to be done in this app (unordered):
 - Improve playlist update to not always replace everything, but just reorder/ add/ remove single songs :white_check_mark:
 - Add test
 - Add a lot of error handling
-- Add automation scripts to build stuff in Github actions
+- Add automation scripts to build stuff in Github actions :white_check_mark:
 - Split package into several packages for better reuse :white_check_mark:
 - Add more input possibilities (for RSS feeds, other tracking sites, etc...)
 - Add more output possibilities (Apple Music, ...)
-- Improve the log-in procedure
+- Improve the log-in procedure :white_check_mark:
 - Switch from simple JSON cache to some DB
 - Create a UI for local running
 - Create some kind of Web-UI and publish as service - this would include some more steps like
