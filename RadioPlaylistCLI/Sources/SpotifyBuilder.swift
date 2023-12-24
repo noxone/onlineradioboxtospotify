@@ -51,6 +51,7 @@ class SpotifyBuilder {
         return spotifyApi
     }
     
+    // https://peter-schorn.github.io/SpotifyAPI/documentation/spotifywebapi/saving-the-authorization-information-to-persistent-storage/
     private func authorizationManagerDidChange(for spotifyApi: SpotifyAPI<AuthorizationCodeFlowManager>) {
         do {
             logger.info("Storing changed credentials in \(credentialsFileUrl.absoluteString)")
