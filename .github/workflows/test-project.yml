@@ -12,10 +12,10 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Install Swift 5.9
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: "5.9"
+#    - name: Install Swift 5.9
+#      uses: swift-actions/setup-swift@v2
+#      with:
+#        swift-version: "5.9"
     - name: Verify swift version
       run: swift --version
     - name: Cache artifacts
@@ -39,7 +39,7 @@ jobs:
       run: |
         cd RadioPlaylistCLI
         swift build
-#    - name: Run tests for CLI
-#      run: |
-#        cd RadioPlaylistCLI
-#        swift test
+    - name: Run tests for CLI
+      run: |
+        cd RadioPlaylistCLI
+        swift test

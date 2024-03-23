@@ -163,3 +163,5 @@ xcuserdata
 # End of https://www.toptal.com/developers/gitignore/api/swiftpm,swiftpackagemanager,swift,visualstudiocode,xcode,macos
 
 secrets/
+
+*.resolved
